@@ -6,6 +6,7 @@
 package input_output;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class IndexWriter {
 	
@@ -54,5 +55,16 @@ public class IndexWriter {
 	 */
 	public void addEntries(short age, byte[] entries) throws WrongEntrySizeException {
 		writers[age-min].addEntries(entries);
+	}
+	
+	/**
+	 * Close IndexWriter, flushing all BufferedIndexFileWriters.
+	 * 
+	 * @throws IOException 
+	 */
+	public void close() throws IOException {
+		for(int i = 0; i < writers.length; ++i) {
+			writers[i].close();
+		}
 	}
 }

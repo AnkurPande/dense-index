@@ -102,4 +102,9 @@ public class BufferedIndexFileWriter {
 			e.printStackTrace();
 		}
 	}
+	
+	public void close() throws IOException {
+		fout.write(buffer, 0, size*entrySize);
+		fout.close();
+	}
 }
