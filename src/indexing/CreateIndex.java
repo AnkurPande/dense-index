@@ -29,13 +29,18 @@ public class CreateIndex {
 		//start time
 		long startTime = System.currentTimeMillis();	
 		
+		//Calculate number of runs required
 		int runs = (int) Math.ceil((double)NO_OF_TOUPLES/(40));
 		
-		
+		//Calculate the end time
 		long endTime = System.currentTimeMillis();
 		
 		tempStringArr = null;
+		
+		//Calculate the end memory.
 		long endmem = Runtime.getRuntime().totalMemory();
+		
+		//Print performance.
 		System.out.println("Time Taken : " + (endTime - startTime) + "ms");
 		System.out.println("Memory Taken (in bytes): " + (endmem - startmem) + " bytes");
 		System.out.println("Memory Taken (in MB): " + (double) (endmem - startmem) /(1024*1024) + " MB");
