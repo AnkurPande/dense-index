@@ -15,8 +15,6 @@ public class IndexWriter {
 	/** Represents the starting number for the index file names */
 	private static final int min = 18;
 	
-	// Basic array implementation.
-	// switching to a hash structure should be simple enough.
 	/**
 	 * Structure for holding BufferedIndexFileWriters.
 	 * The current implementation uses a simple array,
@@ -35,6 +33,13 @@ public class IndexWriter {
 		}
 	}
 	
+	/**
+	 * Look for specific bucket
+	 */
+	private BufferedIndexFileWriter lookup(short age) {
+		return writers[age-min];
+	}
+	
 	/** 
 	 * Add an index entry to the index for age.
 	 * 
@@ -43,7 +48,11 @@ public class IndexWriter {
 	 * @throws WrongEntrySizeException
 	 */
 	public void addEntry(short age, byte[] entry) throws WrongEntrySizeException {
-		writers[age-min].addEntry(entry);
+		lookup(age).addEntry(entry);
+	}
+	
+	public void addEntry(short age, int blockOffset, short recordOffset) throws WrongRecordOffsetSizeException {
+		lookup(age).addEntry(blockOffset, recordOffset);
 	}
 	
 	/** 
@@ -54,7 +63,7 @@ public class IndexWriter {
 	 * @throws WrongEntrySizeException
 	 */
 	public void addEntries(short age, byte[] entries) throws WrongEntrySizeException {
-		writers[age-min].addEntries(entries);
+		lookup(age).addEntries(entries);
 	}
 	
 	/**

@@ -12,6 +12,7 @@ package input_output;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 // See if it's possible to use AspectJ for this:
 // - Use aspect to check argument lengths?
@@ -32,7 +33,7 @@ public class BufferedIndexFileWriter {
 	/** The number of index entries currently in the buffer. */
 	private short size = 0;
 	/** The buffer, represented as an array of bytes. */
-	private byte[] buffer;
+	private ByteBuffer buffer;
 	/** The output stream for the index file. */
 	private FileOutputStream fout;
 	
@@ -44,7 +45,7 @@ public class BufferedIndexFileWriter {
 	 */
 	public BufferedIndexFileWriter(String filename) throws FileNotFoundException {
 		fout = new FileOutputStream(filename);
-		buffer = new byte[blockSize];
+		buffer = ByteBuffer.allocateDirect(blockSize);
 	}
 	
 	/** 
@@ -57,9 +58,19 @@ public class BufferedIndexFileWriter {
 		if (entry.length > entrySize) {
 			throw(new WrongEntrySizeException());
 		}
-		for(int i = 0; i < entrySize; ++i) {
-			buffer[(size*entrySize)+i] = entry[i];
+		buffer.put(entry);
+		++size;
+		if (size == threshold) {
+			write();
 		}
+	}
+	
+	public void addEntry(int blockOffset, short recordOffset) throws WrongRecordOffsetSizeException {
+		if (recordOffset > 0xff) {
+			throw new WrongRecordOffsetSizeException();
+		}
+		buffer.putInt(blockOffset);
+		buffer.put((byte)recordOffset);
 		++size;
 		if (size == threshold) {
 			write();
@@ -77,9 +88,7 @@ public class BufferedIndexFileWriter {
 			throw(new WrongEntrySizeException());
 		}
 		for (int i = 0; i < entries.length; i = i + 5) {
-			for (int j = 0; j < entrySize; ++j) {
-				buffer[(size*entrySize)+j] = entries[i + j];
-			}
+			buffer.put(entries[i]);
 			++size;
 			if (size == threshold) {
 				write();
@@ -92,11 +101,8 @@ public class BufferedIndexFileWriter {
 	 */
 	private void write() {
 		try {
-			for (int i = buffer.length - padding - 1; i < blockSize; ++i) {
-				// Pad end of block with null byte
-				buffer[i] = 0;
-			}
-			fout.write(buffer);
+			fout.write(buffer.array());
+			buffer.clear();
 			size = 0;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -104,7 +110,7 @@ public class BufferedIndexFileWriter {
 	}
 	
 	public void close() throws IOException {
-		fout.write(buffer, 0, size*entrySize);
+		fout.write(buffer.array(), 0, size*entrySize);
 		fout.close();
 	}
 }
