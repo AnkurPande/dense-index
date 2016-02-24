@@ -23,6 +23,7 @@ public class CreateIndex {
 	private void runCases() throws IOException{
 		String[] tempStringArr = new String[40];
 		IOFile f = new IOFile(FILE_NAME);
+		
 		//Calculate available memory at start.
 		float startmem = Runtime.getRuntime().freeMemory();
 		
