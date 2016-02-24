@@ -32,6 +32,23 @@ public class CreateIndex {
 		//Calculate number of runs required
 		int runs = (int) Math.ceil((double)NO_OF_TOUPLES/(40));
 		
+		for (int i = 1; i <= runs; i++) {
+			if (i == runs) {
+				if (NO_OF_TOUPLES % (40) != 0)
+					tempStringArr = new String[NO_OF_TOUPLES % 40];
+				else
+					tempStringArr = new String[40];
+			} else {
+				tempStringArr = new String[40];
+			}
+			
+			for (int j = 0; j < tempStringArr.length; j++) {
+				tempStringArr[j] = f.readTupleFromFile(FILE_NAME);
+			}
+			f.writeToFile(path+"\\data" + i + ".txt", tempStringArr);
+			
+		}
+		
 		//Calculate the end time
 		long endTime = System.currentTimeMillis();
 		
