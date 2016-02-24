@@ -45,7 +45,22 @@ public class CreateIndex {
 			
 			for (int j = 0; j < tempStringArr.length; j++) {
 				tempStringArr[j] = f.readTupleFromFile(FILE_NAME);
+				
+				//Converting values of age attributes and block sequence into 5 bytes offset.
+				String age =  tempStringArr[j].substring(39, 41);
+				
+				//Block offset
+				String blockOffset = Integer.toString(i);
+				
+				//Record offset 
+				String recordOffset = blockOffset+age;
+				
+				//Binary representation for record offset
+				byte[] offset = recordOffset.getBytes();
+				
 			}
+			
+			//Write back the blocks of 4Kb into disk.
 			f.writeToFile(path+"\\data" + i + ".txt", tempStringArr);
 			
 		}
