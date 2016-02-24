@@ -67,7 +67,7 @@ public class IOFile {
 	/**
 	 * @author Julian
 	 */
-	public char[] readBucketBlock(int offset) throws IOException {
+	public char[] readBlock(int offset) throws IOException {
 		char[] block = new char[BLOCK_SIZE];
 		br.read(block, offset, BLOCK_SIZE);
 		return block;
