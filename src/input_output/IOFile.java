@@ -3,7 +3,6 @@
  * 
  */
 
-
 package input_output;
 
 import java.io.BufferedReader;
@@ -16,22 +15,23 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
 public class IOFile {
+	public static final int BLOCK_SIZE = 4096;
 
 	FileInputStream fInStream;
 	DataInputStream in;
 	BufferedReader br;
-	
-	public IOFile(String filename) throws FileNotFoundException{
+
+	public IOFile(String filename) throws FileNotFoundException {
 		fInStream = new FileInputStream(filename);
 		in = new DataInputStream(fInStream);
 		br = new BufferedReader(new InputStreamReader(in));
 	}
-	
+
 	public String readLineFromFile(String filename) {
 		try {
 			String strline;
 			while ((strline = br.readLine()) != null) {
-					return strline;
+				return strline;
 			}
 			in.close();
 		} catch (Exception e) {
@@ -40,30 +40,36 @@ public class IOFile {
 		return "";
 
 	}
-	
-	public String readTupleFromFile(String filename) throws IOException{
+
+	public String readTupleFromFile(String filename) throws IOException {
 		char[] chars = new char[100];
-	    int offset = 0;
-	    while (offset < 100) {
-	        int charsRead = br.read(chars, offset, 100 - offset);
-	        if (charsRead <= 0) {
-	            throw new IOException("Stream terminated early");
-	        }
-	        offset += charsRead;
-	    }
-	    return new String(chars);
-		
+		int offset = 0;
+		while (offset < 100) {
+			int charsRead = br.read(chars, offset, 100 - offset);
+			if (charsRead <= 0) {
+				throw new IOException("Stream terminated early");
+			}
+			offset += charsRead;
+		}
+		return new String(chars);
+
 	}
-	
-	
-	public void writeToFile(String filename,String[] linesToWrite) throws FileNotFoundException, UnsupportedEncodingException{
+
+	public void writeToFile(String filename, String[] linesToWrite)
+			throws FileNotFoundException, UnsupportedEncodingException {
 		PrintWriter writer = new PrintWriter(filename, "UTF-8");
 		for (String str : linesToWrite) {
-			writer.println(str);			
+			writer.println(str);
 		}
 		writer.close();
 	}
-	
-	
 
+	/**
+	 * @author Julian
+	 */
+	public char[] readBucketBlock(int offset) throws IOException {
+		char[] block = new char[BLOCK_SIZE];
+		br.read(block, offset, BLOCK_SIZE);
+		return block;
+	}
 }
