@@ -6,6 +6,8 @@
 package indexing;
 
 import input_output.IOFile;
+import input_output.IndexWriter;
+import input_output.WrongRecordOffsetSizeException;
 
 import java.io.IOException;
 
@@ -14,6 +16,7 @@ public class CreateIndex {
 	static String path = "C:\\Users\\Ankurp\\DENSE-INDEX\\";
 	static String FILE_NAME = path+"person.txt";
 	static int  NO_OF_TOUPLES = 10000;
+	IndexWriter writer ;
 	
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
@@ -23,7 +26,7 @@ public class CreateIndex {
 	private void runCases() throws IOException{
 		String[] tempStringArr = new String[40];
 		IOFile f = new IOFile(FILE_NAME);
-		
+		writer = new IndexWriter();
 		//Calculate available memory at start.
 		float startmem = Runtime.getRuntime().freeMemory();
 		
@@ -43,26 +46,27 @@ public class CreateIndex {
 				tempStringArr = new String[40];
 			}
 			
-			for (int j = 0; j < tempStringArr.length; j++) {
+			for (short j = 0; j < tempStringArr.length; j++) {
 				tempStringArr[j] = f.readTupleFromFile(FILE_NAME);
 				
 				//Converting values of age attributes and block sequence into 5 bytes offset.
 				String age =  tempStringArr[j].substring(39, 41);
-				
-				//Block offset
-				String blockOffset = Integer.toString(i);
-				
-				//Record offset 
-				String recordOffset = blockOffset+age;
-				
-				//Binary representation for record offset
-				byte[] offset = recordOffset.getBytes();
-				
+				short ageVal = Short.parseShort(age);
+			
+				//Block offset within file
+				int blockOffset = i;
+			
+				//Record offset within block
+				short recordOffset = j;
+		
+				//Add entry to index file.
+				try {
+					writer.addEntry(ageVal, blockOffset, recordOffset);
+				} catch (WrongRecordOffsetSizeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-			
-			//Write back the blocks of 4Kb into disk.
-			f.writeToFile(path+"\\data" + i + ".txt", tempStringArr);
-			
 		}
 		
 		//Calculate the end time
