@@ -13,7 +13,8 @@ import java.io.IOException;
 
 public class CreateIndex {
 	
-	static String path = "C:\\Users\\Ankurp\\DENSE-INDEX\\";
+	//static String path = "C:\\Users\\Ankurp\\DENSE-INDEX\\";
+	static String path = "./";
 	static String FILE_NAME = path+"person.txt";
 	static int  NO_OF_TOUPLES = 10000;
 	IndexWriter writer ;
@@ -36,7 +37,7 @@ public class CreateIndex {
 		//Calculate number of runs required
 		int runs = (int) Math.ceil((double)NO_OF_TOUPLES/(40));
 		
-		for (int i = 1; i <= runs; i++) {
+		for (int i = 0; i <= runs; i++) {
 			if (i == runs) {
 				if (NO_OF_TOUPLES % (40) != 0)
 					tempStringArr = new String[NO_OF_TOUPLES % 40];
@@ -69,6 +70,7 @@ public class CreateIndex {
 			}
 		}
 		
+		writer.close();
 		//Calculate the end time
 		long endTime = System.currentTimeMillis();
 		
