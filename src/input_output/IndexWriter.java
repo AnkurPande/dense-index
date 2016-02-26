@@ -51,8 +51,8 @@ public class IndexWriter {
 		lookup(age).addEntry(entry);
 	}
 	
-	public void addEntry(short age, int blockOffset, short recordOffset) throws WrongRecordOffsetSizeException {
-		lookup(age).addEntry(blockOffset, recordOffset);
+	public void addEntry(short age, long offset) throws WrongRecordOffsetSizeException {
+		lookup(age).addEntry(offset);
 	}
 	
 	/** 

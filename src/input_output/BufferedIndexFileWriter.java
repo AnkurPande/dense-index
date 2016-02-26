@@ -35,6 +35,8 @@ public class BufferedIndexFileWriter {
 	private short size = 0;
 	/** The buffer, represented as an array of bytes. */
 	private ByteBuffer buffer;
+	/** ByteBuffer for taking only 5/8 bytes for a long value */
+	private ByteBuffer longConverter;
 	/** The output stream for the index file. */
 	private FileOutputStream fout;
 	private FileChannel fc;
@@ -51,6 +53,7 @@ public class BufferedIndexFileWriter {
 		fout = new FileOutputStream(filename);
 		fc = fout.getChannel();
 		buffer = ByteBuffer.allocateDirect(blockSize);
+		longConverter = ByteBuffer.allocateDirect(8);
 	}
 	
 	/** 
@@ -70,12 +73,11 @@ public class BufferedIndexFileWriter {
 		}
 	}
 	
-	public void addEntry(int blockOffset, short recordOffset) throws WrongRecordOffsetSizeException {
-		if (recordOffset > (blockSize / entrySize) + 1) {
-			throw new WrongRecordOffsetSizeException();
-		}
-		buffer.putInt(blockOffset);
-		buffer.put((byte)recordOffset);
+	public void addEntry(long offset) {
+		longConverter.putLong(offset);
+		longConverter.position(2);
+		buffer.put(longConverter);
+		longConverter.clear();
 		++size;
 		if (size == threshold) {
 			write();

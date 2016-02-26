@@ -40,6 +40,7 @@ public class CreateIndex {
 		byte[] tuple = new byte[100];
 		ByteBuffer block = ByteBuffer.allocate(4096 + tuple.length);
 		
+		long recordOffset = 0;
 		for (int i = 0; i <= runs; i++) {
 			block.put(f.readBlock(i));
 			block.flip();
@@ -55,20 +56,15 @@ public class CreateIndex {
 				//Converting values of age attributes and block sequence into 5 bytes offset.
 				String age =  new String(tuple, 39, 2);
 				short ageVal = Short.parseShort(age);
-			
-				//Block offset within file
-				int blockOffset = i;
-			
-				//Record offset within block
-				short recordOffset = j;
-		
+
 				//Add entry to index file.
 				try {
-					writer.addEntry(ageVal, blockOffset, recordOffset);
+					writer.addEntry(ageVal, recordOffset);
 				} catch (WrongRecordOffsetSizeException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				++recordOffset;
 			}
 			// Move remaining bytes to beginning of buffer
 			block.compact();
