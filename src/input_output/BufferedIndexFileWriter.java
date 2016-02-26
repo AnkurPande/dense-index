@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 // See if it's possible to use AspectJ for this:
 // - Use aspect to check argument lengths?
@@ -36,6 +37,7 @@ public class BufferedIndexFileWriter {
 	private ByteBuffer buffer;
 	/** The output stream for the index file. */
 	private FileOutputStream fout;
+	private FileChannel fc;
 	
 	/** 
 	 * Constructor: Tries to open/create an index file, and initialize the buffer.
@@ -45,6 +47,7 @@ public class BufferedIndexFileWriter {
 	 */
 	public BufferedIndexFileWriter(String filename) throws FileNotFoundException {
 		fout = new FileOutputStream(filename);
+		fc = fout.getChannel();
 		buffer = ByteBuffer.allocateDirect(blockSize);
 	}
 	
@@ -66,7 +69,7 @@ public class BufferedIndexFileWriter {
 	}
 	
 	public void addEntry(int blockOffset, short recordOffset) throws WrongRecordOffsetSizeException {
-		if (recordOffset > 0xff) {
+		if (recordOffset > (blockSize / entrySize) + 1) {
 			throw new WrongRecordOffsetSizeException();
 		}
 		buffer.putInt(blockOffset);
@@ -101,7 +104,8 @@ public class BufferedIndexFileWriter {
 	 */
 	private void write() {
 		try {
-			fout.write(buffer.array());
+			buffer.flip();
+			fc.write(buffer);
 			buffer.clear();
 			size = 0;
 		} catch (IOException e) {
@@ -110,7 +114,8 @@ public class BufferedIndexFileWriter {
 	}
 	
 	public void close() throws IOException {
-		fout.write(buffer.array(), 0, size*entrySize);
+		buffer.flip();
+		int bytes = fc.write(buffer);
 		fout.close();
 	}
 }
