@@ -10,6 +10,7 @@ import input_output.IndexWriter;
 import input_output.WrongRecordOffsetSizeException;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class CreateIndex {
 	
@@ -25,33 +26,34 @@ public class CreateIndex {
 	}
 
 	private void runCases() throws IOException{
-		String[] tempStringArr = new String[40];
 		IOFile f = new IOFile(FILE_NAME);
 		writer = new IndexWriter();
 		//Calculate available memory at start.
 		float startmem = Runtime.getRuntime().freeMemory();
 		
 		//start time
-		long startTime = System.currentTimeMillis();	
+		long startTime = System.currentTimeMillis();
 		
 		//Calculate number of runs required
 		int runs = (int) Math.ceil((double)NO_OF_TOUPLES/(40));
 		
+		byte[] tuple = new byte[100];
+		ByteBuffer block = ByteBuffer.allocate(4096 + tuple.length);
+		
 		for (int i = 0; i <= runs; i++) {
-			if (i == runs) {
-				if (NO_OF_TOUPLES % (40) != 0)
-					tempStringArr = new String[NO_OF_TOUPLES % 40];
-				else
-					tempStringArr = new String[40];
-			} else {
-				tempStringArr = new String[40];
-			}
-			
-			for (short j = 0; j < tempStringArr.length; j++) {
-				tempStringArr[j] = f.readTupleFromFile(FILE_NAME);
+			block.put(f.readBlock(i));
+			block.flip();
+			for (short j = 0; j < block.limit() / tuple.length; j++) {
+				if (block.remaining() < tuple.length) {
+					// Fewer than 100 bytes remaining in buffer. Read next block.
+					break;
+				}
+				
+				// Read a tuple from block.
+				block.get(tuple, 0, tuple.length);
 				
 				//Converting values of age attributes and block sequence into 5 bytes offset.
-				String age =  tempStringArr[j].substring(39, 41);
+				String age =  new String(tuple, 39, 2);
 				short ageVal = Short.parseShort(age);
 			
 				//Block offset within file
@@ -68,13 +70,13 @@ public class CreateIndex {
 					e.printStackTrace();
 				}
 			}
+			// Move remaining bytes to beginning of buffer
+			block.compact();
 		}
 		
 		writer.close();
 		//Calculate the end time
 		long endTime = System.currentTimeMillis();
-		
-		tempStringArr = null;
 		
 		//Calculate the end memory.
 		long endmem = Runtime.getRuntime().totalMemory();
@@ -83,6 +85,6 @@ public class CreateIndex {
 		System.out.println("Time Taken : " + (endTime - startTime) + "ms");
 		System.out.println("Memory Taken (in bytes): " + (endmem - startmem) + " bytes");
 		System.out.println("Memory Taken (in MB): " + (double) (endmem - startmem) /(1024*1024) + " MB");
-		
+		System.out.println("Number of I/Os (creating index): " + f.getReads() + " reads, " + writer.getWrites() + " writes");
 		}	
 }
