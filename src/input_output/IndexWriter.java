@@ -76,4 +76,15 @@ public class IndexWriter {
 			writers[i].close();
 		}
 	}
+	
+	/**
+	 * Return number of I/O operations done while writing the indexes
+	 */
+	public int getWrites() {
+		int sum = 0;
+		for(int i = 0; i < writers.length; ++i) {
+			sum += writers[i].getWrites();
+		}
+		return sum;
+	}
 }

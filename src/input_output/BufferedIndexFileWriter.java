@@ -38,6 +38,8 @@ public class BufferedIndexFileWriter {
 	/** The output stream for the index file. */
 	private FileOutputStream fout;
 	private FileChannel fc;
+	/** The number of I/O writes performed */
+	private int writes;
 	
 	/** 
 	 * Constructor: Tries to open/create an index file, and initialize the buffer.
@@ -108,6 +110,7 @@ public class BufferedIndexFileWriter {
 			fc.write(buffer);
 			buffer.clear();
 			size = 0;
+			++writes;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -115,7 +118,15 @@ public class BufferedIndexFileWriter {
 	
 	public void close() throws IOException {
 		buffer.flip();
-		int bytes = fc.write(buffer);
+		fc.write(buffer);
 		fout.close();
+		++writes;
+	}
+	
+	/**
+	 * Return number of times written to index file
+	 */
+	public int getWrites() {
+		return writes;
 	}
 }
