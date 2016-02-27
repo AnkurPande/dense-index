@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 public class CreateIndex {
 	
 	//static String path = "C:\\Users\\Ankurp\\DENSE-INDEX\\";
-	static String path = "./";
+	static String path = "./resources/relation/";
 	static String FILE_NAME = path+"person.txt";
 	static int  NO_OF_TOUPLES = 10000;
 	IndexWriter writer ;

@@ -29,7 +29,7 @@ public class IndexWriter {
 		// Initialize file writers
 		writers = new BufferedIndexFileWriter[buckets];
 		for (int i = 0; i < writers.length; ++i) {
-			writers[i] = new BufferedIndexFileWriter("./index/" + Integer.toString(i + min));
+			writers[i] = new BufferedIndexFileWriter("./resources/index/" + Integer.toString(i + min));
 		}
 	}
 	
