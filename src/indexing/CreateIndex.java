@@ -42,7 +42,7 @@ public class CreateIndex {
 		
 		long recordOffset = 0;
 		for (int i = 0; i <= runs; i++) {
-			block.put(f.readBlock(i));
+			block.put(f.readSequentialBlock());
 			block.flip();
 			for (short j = 0; j < block.limit() / tuple.length; j++) {
 				if (block.remaining() < tuple.length) {
