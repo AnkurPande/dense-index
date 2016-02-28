@@ -11,7 +11,7 @@ import java.io.IOException;
 public class IndexWriter {
 	
 	/** Represents the number of index files to create */
-	private static final int buckets = 81;
+	private static final int BUCKETS = 81;
 	/** Represents the starting number for the index file names */
 	private static final int min = 18;
 	
@@ -27,7 +27,7 @@ public class IndexWriter {
 	 * @throws FileNotFoundException */
 	public IndexWriter() throws FileNotFoundException {
 		// Initialize file writers
-		writers = new BufferedIndexFileWriter[buckets];
+		writers = new BufferedIndexFileWriter[BUCKETS];
 		for (int i = 0; i < writers.length; ++i) {
 			writers[i] = new BufferedIndexFileWriter("./resources/index/" + Integer.toString(i + min));
 		}
