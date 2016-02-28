@@ -56,26 +56,9 @@ public class BufferedIndexFileWriter {
 		longConverter = ByteBuffer.allocateDirect(8);
 	}
 	
-	/** 
-	 * Add a single entry to the index file, flushing the buffer to fout when it becomes full.
-	 * 
-	 * @param entry
-	 * @throws WrongEntrySizeException
-	 */
-	public void addEntry(byte[] entry) throws WrongEntrySizeException {
-		if (entry.length > entrySize) {
-			throw(new WrongEntrySizeException());
-		}
-		buffer.put(entry);
-		++size;
-		if (size == threshold) {
-			write();
-		}
-	}
-	
 	public void addEntry(long offset) {
 		longConverter.putLong(offset);
-		longConverter.position(2);
+		longConverter.position(3);
 		buffer.put(longConverter);
 		longConverter.clear();
 		++size;
@@ -84,27 +67,8 @@ public class BufferedIndexFileWriter {
 		}
 	}
 	
-	/** 
-	 * Add multiple entries to the index file, flushing the buffer to fout when it becomes full.
-	 * 
-	 * @param entries
-	 * @throws WrongEntrySizeException
-	 */
-	public void addEntries(byte[] entries) throws WrongEntrySizeException {
-		if (entries.length % entrySize != 0) {
-			throw(new WrongEntrySizeException());
-		}
-		for (int i = 0; i < entries.length; i = i + 5) {
-			buffer.put(entries[i]);
-			++size;
-			if (size == threshold) {
-				write();
-			}
-		}
-	}
-	
 	/**
-	 * Pad the end of buffer with null bytes, then flush the buffer to file.
+	 * Flush the buffer to file.
 	 */
 	private void write() {
 		try {

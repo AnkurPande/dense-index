@@ -40,30 +40,8 @@ public class IndexWriter {
 		return writers[age-min];
 	}
 	
-	/** 
-	 * Add an index entry to the index for age.
-	 * 
-	 * @param age
-	 * @param entry
-	 * @throws WrongEntrySizeException
-	 */
-	public void addEntry(short age, byte[] entry) throws WrongEntrySizeException {
-		lookup(age).addEntry(entry);
-	}
-	
 	public void addEntry(short age, long offset) throws WrongRecordOffsetSizeException {
 		lookup(age).addEntry(offset);
-	}
-	
-	/** 
-	 * Add multiple index entries to the index for age.
-	 * 
-	 * @param age
-	 * @param entries
-	 * @throws WrongEntrySizeException
-	 */
-	public void addEntries(short age, byte[] entries) throws WrongEntrySizeException {
-		lookup(age).addEntries(entries);
 	}
 	
 	/**
