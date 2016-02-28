@@ -37,24 +37,20 @@ public class CreateIndex {
 		//Calculate number of runs required
 		int runs = (int) Math.ceil((double)NO_OF_TOUPLES/(40));
 		
-		byte[] tuple = new byte[100];
-		ByteBuffer block = ByteBuffer.allocate(4096 + tuple.length);
+		byte[] tuple = new byte[2];
+		ByteBuffer block = ByteBuffer.allocate(4096 + 100);
 		
 		long recordOffset = 0;
 		for (int i = 0; i <= runs; i++) {
 			block.put(f.readSequentialBlock());
 			block.flip();
-			for (short j = 0; j < block.limit() / tuple.length; j++) {
-				if (block.remaining() < tuple.length) {
-					// Fewer than 100 bytes remaining in buffer. Read next block.
-					break;
-				}
-				
+			while (block.remaining() >= 100) {
+				block.position(block.position() + 39);
 				// Read a tuple from block.
-				block.get(tuple, 0, tuple.length);
+				block.get(tuple, 0, 2);
 				
 				//Converting values of age attributes and block sequence into 5 bytes offset.
-				String age =  new String(tuple, 39, 2);
+				String age =  new String(tuple);
 				short ageVal = Short.parseShort(age);
 
 				//Add entry to index file.
@@ -65,6 +61,7 @@ public class CreateIndex {
 					e.printStackTrace();
 				}
 				++recordOffset;
+				block.position((block.position() / 100) * 100 + 100);
 			}
 			// Move remaining bytes to beginning of buffer
 			block.compact();
