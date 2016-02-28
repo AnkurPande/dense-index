@@ -14,6 +14,11 @@ import java.nio.ByteBuffer;
 
 public class CreateIndex {
 	
+	// Constants for relation
+	static final int BLOCK_SIZE = IOFile.BLOCK_SIZE;
+	static final int RECORD_SIZE = IOFile.RECORD_SIZE;
+	static final int AGE_OFFSET = IOFile.AGE_OFFSET;
+	
 	//static String path = "C:\\Users\\Ankurp\\DENSE-INDEX\\";
 	static String path = "./resources/relation/";
 	static String FILE_NAME = path+"person.txt";
@@ -35,26 +40,25 @@ public class CreateIndex {
 		long startTime = System.currentTimeMillis();
 		
 		//Calculate number of runs required
-		int runs = (int) Math.ceil((double)NO_OF_TOUPLES/(40));
+		int recordsPerBlock = BLOCK_SIZE / RECORD_SIZE;
+		long fileSize = f.length();
+		long recordsInRelation = fileSize / RECORD_SIZE;
+		int runs = (int) Math.ceil((double)recordsInRelation/recordsPerBlock);
 		
-		byte[] tuple = new byte[100];
-		ByteBuffer block = ByteBuffer.allocate(4096 + tuple.length);
+		byte[] tuple = new byte[2];
+		ByteBuffer block = ByteBuffer.allocate(BLOCK_SIZE + RECORD_SIZE);
 		
 		long recordOffset = 0;
 		for (int i = 0; i <= runs; i++) {
 			block.put(f.readSequentialBlock());
 			block.flip();
-			for (short j = 0; j < block.limit() / tuple.length; j++) {
-				if (block.remaining() < tuple.length) {
-					// Fewer than 100 bytes remaining in buffer. Read next block.
-					break;
-				}
-				
+			while (block.remaining() >= RECORD_SIZE) {
+				block.position(block.position() + AGE_OFFSET);
 				// Read a tuple from block.
-				block.get(tuple, 0, tuple.length);
+				block.get(tuple, 0, 2);
 				
 				//Converting values of age attributes and block sequence into 5 bytes offset.
-				String age =  new String(tuple, 39, 2);
+				String age =  new String(tuple);
 				short ageVal = Short.parseShort(age);
 
 				//Add entry to index file.
@@ -65,6 +69,7 @@ public class CreateIndex {
 					e.printStackTrace();
 				}
 				++recordOffset;
+				block.position((block.position() / RECORD_SIZE) * RECORD_SIZE + RECORD_SIZE);
 			}
 			// Move remaining bytes to beginning of buffer
 			block.compact();

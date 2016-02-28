@@ -11,7 +11,7 @@ import java.io.IOException;
 public class IndexWriter {
 	
 	/** Represents the number of index files to create */
-	private static final int buckets = 81;
+	private static final int BUCKETS = 81;
 	/** Represents the starting number for the index file names */
 	private static final int min = 18;
 	
@@ -27,7 +27,7 @@ public class IndexWriter {
 	 * @throws FileNotFoundException */
 	public IndexWriter() throws FileNotFoundException {
 		// Initialize file writers
-		writers = new BufferedIndexFileWriter[buckets];
+		writers = new BufferedIndexFileWriter[BUCKETS];
 		for (int i = 0; i < writers.length; ++i) {
 			writers[i] = new BufferedIndexFileWriter("./resources/index/" + Integer.toString(i + min));
 		}
@@ -40,30 +40,8 @@ public class IndexWriter {
 		return writers[age-min];
 	}
 	
-	/** 
-	 * Add an index entry to the index for age.
-	 * 
-	 * @param age
-	 * @param entry
-	 * @throws WrongEntrySizeException
-	 */
-	public void addEntry(short age, byte[] entry) throws WrongEntrySizeException {
-		lookup(age).addEntry(entry);
-	}
-	
 	public void addEntry(short age, long offset) throws WrongRecordOffsetSizeException {
 		lookup(age).addEntry(offset);
-	}
-	
-	/** 
-	 * Add multiple index entries to the index for age.
-	 * 
-	 * @param age
-	 * @param entries
-	 * @throws WrongEntrySizeException
-	 */
-	public void addEntries(short age, byte[] entries) throws WrongEntrySizeException {
-		lookup(age).addEntries(entries);
 	}
 	
 	/**

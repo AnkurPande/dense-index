@@ -5,8 +5,6 @@
  * @author rkallos
  */
 
-// TODO: Implement counting number of I/Os.
-
 package input_output;
 
 import java.io.FileNotFoundException;
@@ -15,21 +13,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-// See if it's possible to use AspectJ for this:
-// - Use aspect to check argument lengths?
-// - Use aspect to call write()?
-// - Use aspect to check for writing to end-of-block padding?
-
 public class BufferedIndexFileWriter {
 	
 	/** The size of a hard disk block. Measured in bytes. */
-	private static final short blockSize = 4096;
+	private static final short BLOCK_SIZE = 4096;
 	/** The size of an index entry. Measured in bytes. */
-	private static final short entrySize = 5;
+	private static final short ENTRY_SIZE = 5;
 	/** The number of full entries that fit inside one block. */
-	private static final short threshold = blockSize / entrySize;
-	/** The number of bytes to pad at the end of a block. */
-	private static final short padding = blockSize - (threshold * entrySize);
+	private static final short threshold = BLOCK_SIZE / ENTRY_SIZE;
 	
 	/** The number of index entries currently in the buffer. */
 	private short size = 0;
@@ -52,30 +43,13 @@ public class BufferedIndexFileWriter {
 	public BufferedIndexFileWriter(String filename) throws FileNotFoundException {
 		fout = new FileOutputStream(filename);
 		fc = fout.getChannel();
-		buffer = ByteBuffer.allocateDirect(blockSize);
+		buffer = ByteBuffer.allocateDirect(BLOCK_SIZE);
 		longConverter = ByteBuffer.allocateDirect(8);
-	}
-	
-	/** 
-	 * Add a single entry to the index file, flushing the buffer to fout when it becomes full.
-	 * 
-	 * @param entry
-	 * @throws WrongEntrySizeException
-	 */
-	public void addEntry(byte[] entry) throws WrongEntrySizeException {
-		if (entry.length > entrySize) {
-			throw(new WrongEntrySizeException());
-		}
-		buffer.put(entry);
-		++size;
-		if (size == threshold) {
-			write();
-		}
 	}
 	
 	public void addEntry(long offset) {
 		longConverter.putLong(offset);
-		longConverter.position(2);
+		longConverter.position(3);
 		buffer.put(longConverter);
 		longConverter.clear();
 		++size;
@@ -84,27 +58,8 @@ public class BufferedIndexFileWriter {
 		}
 	}
 	
-	/** 
-	 * Add multiple entries to the index file, flushing the buffer to fout when it becomes full.
-	 * 
-	 * @param entries
-	 * @throws WrongEntrySizeException
-	 */
-	public void addEntries(byte[] entries) throws WrongEntrySizeException {
-		if (entries.length % entrySize != 0) {
-			throw(new WrongEntrySizeException());
-		}
-		for (int i = 0; i < entries.length; i = i + 5) {
-			buffer.put(entries[i]);
-			++size;
-			if (size == threshold) {
-				write();
-			}
-		}
-	}
-	
 	/**
-	 * Pad the end of buffer with null bytes, then flush the buffer to file.
+	 * Flush the buffer to file.
 	 */
 	private void write() {
 		try {
