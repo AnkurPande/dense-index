@@ -1,7 +1,7 @@
 package business;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -22,20 +22,21 @@ public class LookupManager {
 
 	private static HashMap<Short, IndexEntry> index = new HashMap<>();
 	RandomAccessFile raf;
-	FileInputStream fis;
+	FileOutputStream fos;
 	FileChannel fc;
 	ByteBuffer hitsBuffer;
 
 	public LookupManager() throws FileNotFoundException {
-		// fis = new FileInputStream(HITS_PATH);
-		raf = new RandomAccessFile(HITS_PATH, "rw");
-		fc = raf.getChannel();
+		fos = new FileOutputStream(HITS_PATH);
+		// raf = new RandomAccessFile(HITS_PATH, "rw");
+		fc = fos.getChannel();
+
 		hitsBuffer = ByteBuffer.allocate(IOFile.BLOCK_SIZE);
 	}
 
 	public static void main(String[] args) throws IOException {
-		index.put((short) 25, new IndexEntry("bucket25", 2));
-		(new LookupManager()).lookupHits((short) 25);
+		index.put((short) 18, new IndexEntry("18", 2));
+		(new LookupManager()).lookupHits((short) 18);
 	}
 
 	public void lookupHits(Short age) throws IOException {
@@ -53,65 +54,53 @@ public class LookupManager {
 		int indexOffset = 0;
 		ByteBuffer indexBlock;
 		ByteBuffer dataBlock = null;
+		ByteBuffer indexEntry;
+		byte[] indexBytes = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+		byte[] record = new byte[100];
+		long currentBlockStart;
+		int blockOffset;
+		long offset;
+		long byteOffset;
 		while (indexOffset < bucketSize) {
 			indexBlock = bucketFile.readSequentialBlock();
 			System.out.println("Index block position: " + indexBlock.position());
 			indexOffset += IOFile.BLOCK_SIZE;
-			// System.out.println("Index block: " + new String(indexBlock));
 
-			// int dataStart;
-			byte[] record = new byte[100];
-			long currentBlockStart = -1;
+			currentBlockStart = 0;
+			blockOffset = 0;
 			while (indexBlock.hasRemaining()) {
-				// int blockOffset = indexBlock.getInt();
-				char[] ca = new char[5];
-				ca[0] = (char) indexBlock.get();
-				ca[1] = (char) indexBlock.get();
-				ca[2] = (char) indexBlock.get();
-				ca[3] = (char) indexBlock.get();
-				ca[4] = (char) indexBlock.get();
-				long offset = new Long(new String(ca));
-				
-				
-				
-				
-				long byteOffset = offset * 100;
-				short blockOffset = (short) (byteOffset - currentBlockStart);
-				
+				indexBlock.get(indexBytes, 3, 5);
+				indexEntry = ByteBuffer.wrap(indexBytes);
+				offset = indexEntry.getLong();
 
-				
-
-//				int blockNumber = computeRelationOffset(offset);
-//				short blockOffset = computeBlockOffset(offset);
+				byteOffset = offset * 100;
 
 				System.out.println("Index block position: " + indexBlock.position());
-//				if (blockNumber != currentBlockStart) {
-				if (blockOffset >= 4000) {
+
+				blockOffset = (int) (byteOffset - currentBlockStart);
+
+				if (currentBlockStart == 0 || blockOffset >= 4000) {
 					dataBlock = relationFile.readRandomBlock(byteOffset);
-					System.out.println("Data block position: " + dataBlock.position());
 					currentBlockStart = byteOffset;
 					blockOffset = 0;
 				}
 
-				// int recordOffset = Character.getNumericValue((char)
-				// indexBlock.get());
-//				System.out.println("Index block position: " + indexBlock.position());
-				// recordOffset *= 100;
-				// dataStart += recordOffset;
+				System.out.println("Data block position: " + dataBlock.position());
+
 				dataBlock.position(blockOffset);
 				System.out.println("Data block position: " + dataBlock.position());
 				dataBlock.get(record);
 				System.out.println("Data block position: " + dataBlock.position());
-//				System.out.println("Hit: " + record);
 
 				hitsBuffer.put(record);
 
 				if (hitsBuffer.capacity() - hitsBuffer.position() < 100 || !indexBlock.hasRemaining()) {
 					hitsBuffer.flip();
 					while (hitsBuffer.hasRemaining()) {
-						fc.write(hitsBuffer);
+						System.out.println("Hit file position: " + fc.position());
+						int write = fc.write(hitsBuffer);
+						System.out.println("Hit file position: " + fc.position());
 					}
-					hitsBuffer.flip();
 					hitsBuffer.clear();
 				}
 			}
@@ -134,8 +123,8 @@ public class LookupManager {
 
 	@Override
 	protected void finalize() throws Throwable {
-		raf.close();
-		fis.close();
+		// raf.close();
+		fos.close();
 		fc.close();
 	}
 }
