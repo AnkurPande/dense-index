@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.HashMap;
 
 import input_output.IOFile;
-import model.IndexEntry;
 
 /**
  * @author Julian
@@ -20,7 +18,7 @@ public class LookupManager {
 	public static final String RELATION_PATH = "C:\\Users\\Julian\\dev\\git\\dense-index\\resources\\relation\\person.txt";
 	public static final String HITS_PATH = "C:\\Users\\Julian\\dev\\git\\dense-index\\resources\\output\\hits.txt";
 
-	private static HashMap<Short, IndexEntry> index = new HashMap<>();
+	// private static HashMap<Short, IndexEntry> index = new HashMap<>();
 	RandomAccessFile raf;
 	FileOutputStream fos;
 	FileChannel fc;
@@ -35,21 +33,23 @@ public class LookupManager {
 	}
 
 	public static void main(String[] args) throws IOException {
-		index.put((short) 18, new IndexEntry("18", 2));
+		// index.put((short) 18, new IndexEntry("18", 2));
 		(new LookupManager()).lookupHits((short) 18);
 	}
 
 	public void lookupHits(Short age) throws IOException {
-		IndexEntry entry = index.get(age);
-
-		long count = entry.getCount();
-		long bucketSize = count * 5;
-		System.out.println("Number of hits: " + count);
-
-		String bucketName = entry.getBucketName();
+		// IndexEntry entry = index.get(age);
+		//
+		// long count = entry.getCount();
+		// System.out.println("Number of hits: " + count);
+		//
+		// String bucketName = entry.getBucketName();
+		String bucketName = age.toString();
 
 		IOFile bucketFile = new IOFile(INDEX_PATH + bucketName);
 		IOFile relationFile = new IOFile(RELATION_PATH);
+
+		long bucketSize = bucketFile.length();
 
 		int indexOffset = 0;
 		ByteBuffer indexBlock;
