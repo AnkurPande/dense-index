@@ -13,8 +13,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import model.Performance;
-
 public class CreateIndex {
 	
 	// Constants for relation
@@ -27,7 +25,6 @@ public class CreateIndex {
 	static String FILE_NAME = path+"person.txt";
 	IndexWriter writer ;
 	IOFile f;
-	Performance stats;
 	
 	public CreateIndex() throws FileNotFoundException{
 		f = new IOFile(FILE_NAME);
