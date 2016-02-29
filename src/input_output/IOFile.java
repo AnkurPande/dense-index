@@ -32,14 +32,6 @@ public class IOFile {
 		 block = ByteBuffer.allocate(BLOCK_SIZE);
 	}
 
-	public void writeToFile(String filename, String[] linesToWrite) throws FileNotFoundException, UnsupportedEncodingException {
-		PrintWriter writer = new PrintWriter(filename, "UTF-8");
-		for (String str : linesToWrite) {
-			writer.println(str);
-		}
-		writer.close();
-	}
-
 	public ByteBuffer readSequentialBlock() throws IOException {
 		block.clear();
 		fc.read(block);

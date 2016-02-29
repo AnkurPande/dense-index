@@ -3,6 +3,8 @@ package business;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
+
+import model.Performance;
 import indexing.CreateIndex;
 
 // TODO: Check if index exists. If not, create one.
@@ -11,6 +13,9 @@ public class QueryCLI {
 	public static void main(String[] args) {
 		
 		LookupManager lm = null;
+		CreateIndex ci = null;
+		Performance index_performance = new Performance();
+		Performance lookup_performance = new Performance();
 		Scanner kb = new Scanner(System.in);
 		
 		System.out.println("+-----------------------------------------------------+");
@@ -18,13 +23,30 @@ public class QueryCLI {
 		System.out.println("| Authors: Ankur Pandey, Julian Enoch, Richard Kallos |");
 		System.out.println("+-----------------------------------------------------+");
 
-		// Create index
+		//Open relation file.
+		try {
+			ci = new CreateIndex();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.out.println("Unable to find relation file. Exiting.");
+			System.exit(1);
+		}
+				
 		System.out.println("Creating Index:");
 		try {
-			CreateIndex.main(args);
+			//Start timer.
+			index_performance.startTimer();
+			//Start memory.
+			index_performance.calculateStartMemory();
+			// Create index
+			ci.runCases();
+			//Stop Timer.
+			index_performance.stopTimer();
+			//end memory.
+			index_performance.calculateEndMemory();
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("Unable to create index. Exiting.");
+			System.out.println("Unable to create indexes. Exiting.");
 			System.exit(1);
 		}
 		
@@ -54,15 +76,34 @@ public class QueryCLI {
 			}
 			// Perform index lookup for age input
 			try {
+				//Start analyzing for indexing.
+				lookup_performance.startTimer();
+				
+				//Calculate start memory.
+				lookup_performance.calculateStartMemory();
+				//Lookup
 				lm.lookupHits(age);
+				//Stop analyzing for indexing.
+				lookup_performance.stopTimer();		
+				//Calculate memory used.
+				lookup_performance.calculateEndMemory();
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.out.println("Unable to perform lookup. Exiting.");
 				System.exit(1);
 			}
-			// TODO: Print hits.txt to console
+			// TODO: Print hits.txt to console.
+			System.out.println("\nPerformnace data for index creation operation.");
+			System.out.println("Time Taken : " + index_performance.getTimeElapsed() + "ms");
+			System.out.println("Memory Taken (in bytes): " + index_performance.getMemUsed()+ " bytes");
+			System.out.println("Memory Taken (in MB): " + (double) index_performance.getMemUsed() /(1024*1024) + " MB");
+			
+			System.out.println("\nPerformnace data for lookup operation of age value "+ age);
+			System.out.println("Time Taken : " + lookup_performance.getTimeElapsed() + "ms");
+			System.out.println("Memory Taken (in bytes): " + lookup_performance.getMemUsed()+ " bytes");
+			System.out.println("Memory Taken (in MB): " + (double) lookup_performance.getMemUsed() /(1024*1024) + " MB");
 		}
-		
 		System.out.println("Received quit signal. Exiting.");
 		kb.close();
 	}

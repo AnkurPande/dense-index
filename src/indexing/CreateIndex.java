@@ -9,8 +9,11 @@ import input_output.IOFile;
 import input_output.IndexWriter;
 import input_output.WrongRecordOffsetSizeException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+
+import model.Performance;
 
 public class CreateIndex {
 	
@@ -19,25 +22,19 @@ public class CreateIndex {
 	static final int RECORD_SIZE = IOFile.RECORD_SIZE;
 	static final int AGE_OFFSET = IOFile.AGE_OFFSET;
 	
-	//static String path = "C:\\Users\\Ankurp\\DENSE-INDEX\\";
-	static String path = "./resources/relation/";
+	static String path = "C:\\Users\\Ankurp\\DENSE-INDEX\\";
+	//static String path = "./resources/relation/";
 	static String FILE_NAME = path+"person.txt";
-	static int  NO_OF_TOUPLES = 10000;
 	IndexWriter writer ;
+	IOFile f;
+	Performance stats;
 	
-	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
-		new CreateIndex().runCases();
-	}
-
-	private void runCases() throws IOException{
-		IOFile f = new IOFile(FILE_NAME);
+	public CreateIndex() throws FileNotFoundException{
+		f = new IOFile(FILE_NAME);
 		writer = new IndexWriter();
-		//Calculate available memory at start.
-		float startmem = Runtime.getRuntime().freeMemory();
-		
-		//start time
-		long startTime = System.currentTimeMillis();
+	}
+	
+	public void runCases() throws IOException{
 		
 		//Calculate number of runs required
 		int recordsPerBlock = BLOCK_SIZE / RECORD_SIZE;
@@ -76,16 +73,6 @@ public class CreateIndex {
 		}
 		
 		writer.close();
-		//Calculate the end time
-		long endTime = System.currentTimeMillis();
-		
-		//Calculate the end memory.
-		long endmem = Runtime.getRuntime().totalMemory();
-		
-		//Print performance.
-		System.out.println("Time Taken : " + (endTime - startTime) + "ms");
-		System.out.println("Memory Taken (in bytes): " + (endmem - startmem) + " bytes");
-		System.out.println("Memory Taken (in MB): " + (double) (endmem - startmem) /(1024*1024) + " MB");
 		System.out.println("Number of I/Os (creating index): " + f.getReads() + " reads, " + writer.getWrites() + " writes");
 		}	
 }
