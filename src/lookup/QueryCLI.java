@@ -34,9 +34,12 @@ public class QueryCLI {
 		// Query loop
 		String input = "";
 		short age = 0;
-		while(!input.equalsIgnoreCase("q")) {
+		while(true) {
 			System.out.print("age (18-99)> ");
 			input = kb.nextLine();
+			if (input.equalsIgnoreCase("q")) {
+				break;
+			}
 			try {
 				age = Short.parseShort(input);
 			} catch(NumberFormatException e) {
@@ -63,7 +66,7 @@ public class QueryCLI {
 			}
 			// TODO: Print hits.txt to console.
 			
-			System.out.println("\nPerformnace data for lookup operation of age value "+ age);
+			System.out.println("\nPerformance data for lookup operation of age value "+ age);
 			System.out.println("Time Taken : " + lookup_performance.getTimeElapsed() + "ms");
 			System.out.println("Memory Taken (in bytes): " + lookup_performance.getMemUsed()+ " bytes");
 			System.out.println("Memory Taken (in MB): " + (double) lookup_performance.getMemUsed() /(1024*1024) + " MB");
