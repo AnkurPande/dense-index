@@ -24,7 +24,7 @@ public class LookupManager {
 	FileChannel fc;
 	ByteBuffer hitsBuffer;
 
-	public LookupManager() throws FileNotFoundException {
+	public void openOutput() throws FileNotFoundException {
 		fos = new FileOutputStream(HITS_PATH);
 		// raf = new RandomAccessFile(HITS_PATH, "rw");
 		fc = fos.getChannel();
@@ -38,6 +38,8 @@ public class LookupManager {
 	}
 
 	public void lookupHits(Short age) throws IOException {
+		openOutput();
+
 		// IndexEntry entry = index.get(age);
 		//
 		// long count = entry.getCount();
@@ -63,7 +65,8 @@ public class LookupManager {
 		long byteOffset;
 		while (indexOffset < bucketSize) {
 			indexBlock = bucketFile.readSequentialBlock();
-			System.out.println("Index block position: " + indexBlock.position());
+			// System.out.println("Index block position: " +
+			// indexBlock.position());
 			indexOffset += IOFile.BLOCK_SIZE;
 
 			currentBlockStart = 0;
@@ -75,7 +78,8 @@ public class LookupManager {
 
 				byteOffset = offset * 100;
 
-				System.out.println("Index block position: " + indexBlock.position());
+				// System.out.println("Index block position: " +
+				// indexBlock.position());
 
 				blockOffset = (int) (byteOffset - currentBlockStart);
 
@@ -85,7 +89,8 @@ public class LookupManager {
 					blockOffset = 0;
 				}
 
-				System.out.println("Data block position: " + dataBlock.position());
+				// System.out.println("Data block position: " +
+				// dataBlock.position());
 
 				dataBlock.position(blockOffset);
 				System.out.println("Data block position: " + dataBlock.position());
@@ -105,6 +110,7 @@ public class LookupManager {
 				}
 			}
 		}
+		closeOutput();
 	}
 
 	// public int computeRelationOffset(long offset) {
@@ -121,8 +127,7 @@ public class LookupManager {
 	// return blockOffset;
 	// }
 
-	@Override
-	protected void finalize() throws Throwable {
+	public void closeOutput() throws IOException {
 		// raf.close();
 		fos.close();
 		fc.close();
