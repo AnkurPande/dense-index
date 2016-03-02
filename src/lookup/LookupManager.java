@@ -17,6 +17,7 @@ public class LookupManager {
 	public static final String INDEX_PATH = "./resources/index/";
 	public static final String RELATION_PATH = "./resources/relation/person.txt";
 	public static final String HITS_PATH = "./resources/output/hits.txt";
+	private static int outputWrites = 0;
 
 	// private static HashMap<Short, IndexEntry> index = new HashMap<>();
 	RandomAccessFile raf;
@@ -93,24 +94,35 @@ public class LookupManager {
 				// dataBlock.position());
 
 				dataBlock.position(blockOffset);
-				System.out.println("Data block position: " + dataBlock.position());
+				// System.out.println("Data block position: " +
+				// dataBlock.position());
 				dataBlock.get(record);
-				System.out.println("Data block position: " + dataBlock.position());
+				// System.out.println("Data block position: " +
+				// dataBlock.position());
 
 				hitsBuffer.put(record);
 
 				if (hitsBuffer.capacity() - hitsBuffer.position() < 100 || !indexBlock.hasRemaining()) {
 					hitsBuffer.flip();
 					while (hitsBuffer.hasRemaining()) {
-						System.out.println("Hit file position: " + fc.position());
+						// System.out.println("Hit file position: " +
+						// fc.position());
 						int write = fc.write(hitsBuffer);
-						System.out.println("Hit file position: " + fc.position());
+						outputWrites++;
+						// System.out.println("Hit file position: " +
+						// fc.position());
 					}
 					hitsBuffer.clear();
 				}
 			}
 		}
 		closeOutput();
+
+		System.out.println("Number of hits:       " + bucketSize / 5);
+		System.out.println("Index block reads:    " + bucketFile.getReads());
+		System.out.println("Relation block reads: " + relationFile.getReads());
+		System.out.println("Output block writes:  " + outputWrites);
+
 	}
 
 	// public int computeRelationOffset(long offset) {
