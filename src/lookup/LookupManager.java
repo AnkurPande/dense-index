@@ -35,7 +35,7 @@ public class LookupManager {
 
 	public static void main(String[] args) throws IOException {
 		// index.put((short) 18, new IndexEntry("18", 2));
-		(new LookupManager()).lookupHits((short) 18);
+		(new LookupManager()).lookupHits((short) 99);
 	}
 
 	public void lookupHits(Short age) throws IOException {
@@ -49,80 +49,87 @@ public class LookupManager {
 		// String bucketName = entry.getBucketName();
 		String bucketName = age.toString();
 
-		IOFile bucketFile = new IOFile(INDEX_PATH + bucketName);
-		IOFile relationFile = new IOFile(RELATION_PATH);
+		long bucketSize = 0;
+		long indexReads = 0;
+		long relationReads = 0;
+		try {
+			IOFile bucketFile = new IOFile(INDEX_PATH + bucketName);
+			IOFile relationFile = new IOFile(RELATION_PATH);
 
-		long bucketSize = bucketFile.length();
+			bucketSize = bucketFile.length();
 
-		int indexOffset = 0;
-		ByteBuffer indexBlock;
-		ByteBuffer dataBlock = null;
-		ByteBuffer indexEntry;
-		byte[] indexBytes = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-		byte[] record = new byte[100];
-		long currentBlockStart;
-		int blockOffset;
-		long offset;
-		long byteOffset;
-		while (indexOffset < bucketSize) {
-			indexBlock = bucketFile.readSequentialBlock();
-			// System.out.println("Index block position: " +
-			// indexBlock.position());
-			indexOffset += IOFile.BLOCK_SIZE;
-
-			currentBlockStart = 0;
-			blockOffset = 0;
-			while (indexBlock.hasRemaining()) {
-				indexBlock.get(indexBytes, 3, 5);
-				indexEntry = ByteBuffer.wrap(indexBytes);
-				offset = indexEntry.getLong();
-
-				byteOffset = offset * 100;
-
+			int indexOffset = 0;
+			ByteBuffer indexBlock;
+			ByteBuffer dataBlock = null;
+			ByteBuffer indexEntry;
+			byte[] indexBytes = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+			byte[] record = new byte[100];
+			long currentBlockStart;
+			int blockOffset;
+			long offset;
+			long byteOffset;
+			while (indexOffset < bucketSize) {
+				indexBlock = bucketFile.readSequentialBlock();
 				// System.out.println("Index block position: " +
 				// indexBlock.position());
+				indexOffset += IOFile.BLOCK_SIZE;
 
-				blockOffset = (int) (byteOffset - currentBlockStart);
+				currentBlockStart = 0;
+				blockOffset = 0;
+				while (indexBlock.hasRemaining()) {
+					indexBlock.get(indexBytes, 3, 5);
+					indexEntry = ByteBuffer.wrap(indexBytes);
+					offset = indexEntry.getLong();
 
-				if (currentBlockStart == 0 || blockOffset >= 4000) {
-					dataBlock = relationFile.readRandomBlock(byteOffset);
-					currentBlockStart = byteOffset;
-					blockOffset = 0;
-				}
+					byteOffset = offset * 100;
 
-				// System.out.println("Data block position: " +
-				// dataBlock.position());
+					// System.out.println("Index block position: " +
+					// indexBlock.position());
 
-				dataBlock.position(blockOffset);
-				// System.out.println("Data block position: " +
-				// dataBlock.position());
-				dataBlock.get(record);
-				// System.out.println("Data block position: " +
-				// dataBlock.position());
+					blockOffset = (int) (byteOffset - currentBlockStart);
 
-				hitsBuffer.put(record);
-
-				if (hitsBuffer.capacity() - hitsBuffer.position() < 100 || !indexBlock.hasRemaining()) {
-					hitsBuffer.flip();
-					while (hitsBuffer.hasRemaining()) {
-						// System.out.println("Hit file position: " +
-						// fc.position());
-						int write = fc.write(hitsBuffer);
-						outputWrites++;
-						// System.out.println("Hit file position: " +
-						// fc.position());
+					if (currentBlockStart == 0 || blockOffset >= 4000) {
+						dataBlock = relationFile.readRandomBlock(byteOffset);
+						currentBlockStart = byteOffset;
+						blockOffset = 0;
 					}
-					hitsBuffer.clear();
+
+					// System.out.println("Data block position: " +
+					// dataBlock.position());
+
+					dataBlock.position(blockOffset);
+					// System.out.println("Data block position: " +
+					// dataBlock.position());
+					dataBlock.get(record);
+					// System.out.println("Data block position: " +
+					// dataBlock.position());
+
+					hitsBuffer.put(record);
+
+					if (hitsBuffer.capacity() - hitsBuffer.position() < 100 || !indexBlock.hasRemaining()) {
+						hitsBuffer.flip();
+						while (hitsBuffer.hasRemaining()) {
+							// System.out.println("Hit file position: " +
+							// fc.position());
+							int write = fc.write(hitsBuffer);
+							outputWrites++;
+							// System.out.println("Hit file position: " +
+							// fc.position());
+						}
+						hitsBuffer.clear();
+					}
 				}
 			}
+			closeOutput();
+			indexReads = bucketFile.getReads();
+			relationReads = relationFile.getReads();
+		} catch (FileNotFoundException e) {
+		} finally {
+			System.out.println("Number of hits:       " + bucketSize / 5);
+			System.out.println("Index block reads:    " + indexReads);
+			System.out.println("Relation block reads: " + relationReads);
+			System.out.println("Output block writes:  " + outputWrites);
 		}
-		closeOutput();
-
-		System.out.println("Number of hits:       " + bucketSize / 5);
-		System.out.println("Index block reads:    " + bucketFile.getReads());
-		System.out.println("Relation block reads: " + relationFile.getReads());
-		System.out.println("Output block writes:  " + outputWrites);
-
 	}
 
 	// public int computeRelationOffset(long offset) {
