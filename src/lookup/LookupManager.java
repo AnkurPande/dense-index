@@ -35,7 +35,7 @@ public class LookupManager {
 
 	public static void main(String[] args) throws IOException {
 		// index.put((short) 18, new IndexEntry("18", 2));
-		(new LookupManager()).lookupHits((short) 99);
+		(new LookupManager()).lookupHits((short) 18);
 	}
 
 	public void lookupHits(Short age) throws IOException {
@@ -77,7 +77,15 @@ public class LookupManager {
 				currentBlockStart = 0;
 				blockOffset = 0;
 				while (indexBlock.hasRemaining()) {
-					indexBlock.get(indexBytes, 3, 5);
+					int remaining = indexBlock.remaining();
+					if (remaining >= 5) {
+						indexBlock.get(indexBytes, 3, 5);
+					} else {
+						indexBlock.get(indexBytes, 3, remaining);
+						indexBlock = bucketFile.readSequentialBlock();
+						indexBlock.get(indexBytes, 3 + remaining, 5 - remaining);
+					}
+
 					indexEntry = ByteBuffer.wrap(indexBytes);
 					offset = indexEntry.getLong();
 
