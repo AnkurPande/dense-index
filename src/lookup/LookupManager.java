@@ -14,9 +14,9 @@ import input_output.IOFile;
  *
  */
 public class LookupManager {
-	public static final String INDEX_PATH = "C:\\Users\\Julian\\dev\\git\\dense-index\\resources\\index\\";
-	public static final String RELATION_PATH = "C:\\Users\\Julian\\dev\\git\\dense-index\\resources\\relation\\person.txt";
-	public static final String HITS_PATH = "C:\\Users\\Julian\\dev\\git\\dense-index\\resources\\output\\hits.txt";
+	public static final String INDEX_PATH = "./resources/index/";
+	public static final String RELATION_PATH = "./resources/relation/person.txt";
+	public static final String HITS_PATH = "./resources/output/hits.txt";
 
 	// private static HashMap<Short, IndexEntry> index = new HashMap<>();
 	RandomAccessFile raf;
