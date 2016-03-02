@@ -40,7 +40,7 @@ public class IndexWriter {
 		return writers[age-min];
 	}
 	
-	public void addEntry(short age, long offset) throws WrongRecordOffsetSizeException {
+	public void addEntry(short age, long offset) {
 		lookup(age).addEntry(offset);
 	}
 	

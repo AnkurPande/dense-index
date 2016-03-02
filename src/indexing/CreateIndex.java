@@ -7,7 +7,6 @@ package indexing;
 
 import input_output.IOFile;
 import input_output.IndexWriter;
-import input_output.WrongRecordOffsetSizeException;
 import model.Performance;
 
 import java.io.FileNotFoundException;
@@ -73,12 +72,7 @@ public class CreateIndex {
 				short ageVal = Short.parseShort(age);
 
 				//Add entry to index file.
-				try {
-					writer.addEntry(ageVal, recordOffset);
-				} catch (WrongRecordOffsetSizeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				writer.addEntry(ageVal, recordOffset);
 				++recordOffset;
 				block.position((block.position() / RECORD_SIZE) * RECORD_SIZE + RECORD_SIZE);
 			}
