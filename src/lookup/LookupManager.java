@@ -1,4 +1,4 @@
-package business;
+package lookup;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
