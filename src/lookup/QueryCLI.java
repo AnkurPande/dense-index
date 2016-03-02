@@ -3,7 +3,6 @@ package lookup;
 import java.io.IOException;
 import java.util.Scanner;
 
-import indexing.CreateIndex;
 import model.Performance;
 
 // TODO: Check if index exists. If not, create one.
@@ -12,7 +11,6 @@ public class QueryCLI {
 	public static void main(String[] args) {
 
 		LookupManager lm = null;
-		CreateIndex ci = null;
 		Performance lookup_performance = new Performance();
 		Scanner kb = new Scanner(System.in);
 

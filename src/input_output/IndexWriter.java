@@ -27,7 +27,7 @@ public class IndexWriter {
 	 * @throws FileNotFoundException */
 	public IndexWriter() throws FileNotFoundException {
 		// Initialize file writers
-		writers = new BufferedIndexFileWriter[BUCKETS];
+		writers = new BufferedIndexFileWriter[BUCKETS + 1];
 		for (int i = 0; i < writers.length; ++i) {
 			writers[i] = new BufferedIndexFileWriter("./resources/index/" + Integer.toString(i + min));
 		}
