@@ -44,14 +44,10 @@ public class BufferedIndexFileWriter {
 		fout = new FileOutputStream(filename);
 		fc = fout.getChannel();
 		buffer = ByteBuffer.allocateDirect(BLOCK_SIZE);
-		longConverter = ByteBuffer.allocateDirect(8);
 	}
 	
-	public void addEntry(long offset) {
-		longConverter.putLong(offset);
-		longConverter.position(3);
-		buffer.put(longConverter);
-		longConverter.clear();
+	public void addEntry(int offset) {
+		buffer.putInt(offset);
 		++size;
 		if (size == threshold) {
 			write();

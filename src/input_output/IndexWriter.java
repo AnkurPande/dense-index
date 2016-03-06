@@ -40,7 +40,7 @@ public class IndexWriter {
 		return writers[age-min];
 	}
 	
-	public void addEntry(short age, long offset) {
+	public void addEntry(short age, int offset) {
 		lookup(age).addEntry(offset);
 	}
 	

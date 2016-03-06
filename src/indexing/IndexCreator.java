@@ -56,7 +56,7 @@ public class IndexCreator {
 		byte[] tuple = new byte[2];
 		ByteBuffer block = ByteBuffer.allocate(BLOCK_SIZE + RECORD_SIZE);
 		
-		long recordOffset = 0;
+		int recordOffset = 0;
 		for (int i = 0; i <= runs; i++) {
 			block.put(f.readSequentialBlock());
 			block.flip();
