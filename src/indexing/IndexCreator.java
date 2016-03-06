@@ -5,13 +5,13 @@
 
 package indexing;
 
-import input_output.IOFile;
-import input_output.IndexWriter;
-import model.Performance;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+
+import input_output.IOFile;
+import input_output.IndexWriter;
+import model.Performance;
 
 public class IndexCreator {
 
@@ -31,7 +31,7 @@ public class IndexCreator {
 		Performance perf = new Performance();
 
 		perf.startTimer();
-		c.runCases();
+		c.createIndex();
 		perf.stopTimer();
 		perf.calculateMemUsed();
 		System.out.println("\nPerformance data for index creation.");
@@ -44,7 +44,7 @@ public class IndexCreator {
 		writer = new IndexWriter();
 	}
 
-	public void runCases() throws IOException {
+	public void createIndex() throws IOException {
 
 		// Calculate number of runs required
 		int recordsPerBlock = BLOCK_SIZE / RECORD_SIZE;
@@ -52,7 +52,7 @@ public class IndexCreator {
 		long recordsInRelation = fileSize / RECORD_SIZE;
 		int runs = (int) Math.ceil((double) recordsInRelation / recordsPerBlock);
 
-		byte[] tuple = new byte[2];
+		byte[] ageBytes = new byte[2];
 		ByteBuffer block = ByteBuffer.allocate(BLOCK_SIZE + RECORD_SIZE);
 
 		int recordOffset = 0;
@@ -62,12 +62,11 @@ public class IndexCreator {
 			while (block.remaining() >= RECORD_SIZE) {
 				block.position(block.position() + AGE_OFFSET);
 				// Read a tuple from block.
-				block.get(tuple, 0, 2);
+				block.get(ageBytes, 0, 2);
 
 				// Converting values of age attributes and block sequence into 5
 				// bytes offset.
-				String age = new String(tuple);
-				short ageVal = Short.parseShort(age);
+				short ageVal = Short.parseShort(new String(ageBytes));
 
 				// Add entry to index file.
 				writer.addEntry(ageVal, recordOffset);
