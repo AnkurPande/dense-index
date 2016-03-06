@@ -41,14 +41,12 @@ public class QueryCLI {
 			try {
 				// Start analyzing for indexing.
 				lookup_performance.startTimer();
-				// Calculate start memory.
-				lookup_performance.calculateStartMemory();
 				// Lookup
 				lm.lookupHits(age);
 				// Stop analyzing for indexing.
 				lookup_performance.stopTimer();
 				// Calculate memory used.
-				lookup_performance.calculateEndMemory();
+				lookup_performance.calculateMemUsed();
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -59,8 +57,8 @@ public class QueryCLI {
 
 			System.out.println("\nPerformance data for lookup operation of age value " + age);
 			System.out.println("Time Taken : " + lookup_performance.getTimeElapsed() + "ms");
-			System.out.println("Memory Taken (in bytes): " + lookup_performance.getMemUsed() + " bytes");
-			System.out.println("Memory Taken (in MB): " + (double) lookup_performance.getMemUsed() / (1024 * 1024) + " MB");
+			System.out.println("Memory Taken (in bytes): " + lookup_performance.getUsedMemory() + " bytes");
+			System.out.println("Memory Taken (in MB): " + (double) lookup_performance.getUsedMemory() / (1024 * 1024) + " MB");
 		}
 		System.out.println("Received quit signal. Exiting.");
 		kb.close();

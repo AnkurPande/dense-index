@@ -29,17 +29,15 @@ public class CreateIndex {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		CreateIndex c = new CreateIndex();
 		Performance perf = new Performance();
-		
-		perf.calculateStartMemory();
+			
 		perf.startTimer();
 		c.runCases();
 		perf.stopTimer();
-		perf.calculateEndMemory();
-		
+		perf.calculateMemUsed();		
 		System.out.println("\nPerformance data for index creation.");
 		System.out.println("Time Taken : " + perf.getTimeElapsed() + "ms");
-		System.out.println("Memory Taken (in bytes): " + perf.getMemUsed()+ " bytes");
-		System.out.println("Memory Taken (in MB): " + (double) perf.getMemUsed() /(1024*1024) + " MB");
+		System.out.println("Memory Taken (in bytes): " + perf.getUsedMemory()+ " bytes");
+		System.out.println("Memory Taken (in MB): " + (double) perf.getUsedMemory() /(1024*1024) + " MB");
 	}
 	
 	public CreateIndex() throws FileNotFoundException{
