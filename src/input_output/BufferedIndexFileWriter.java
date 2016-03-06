@@ -26,8 +26,6 @@ public class BufferedIndexFileWriter {
 	private short size = 0;
 	/** The buffer, represented as an array of bytes. */
 	private ByteBuffer buffer;
-	/** ByteBuffer for taking only 5/8 bytes for a long value */
-	private ByteBuffer longConverter;
 	/** The output stream for the index file. */
 	private FileOutputStream fout;
 	private FileChannel fc;
