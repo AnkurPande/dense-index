@@ -19,7 +19,6 @@ public class IOFile {
 	private int reads = 0;
 	private int writes = 0;
 
-	// FileInputStream fInStream;
 	RandomAccessFile raf;
 	FileChannel fc;
 	ByteBuffer block;
@@ -27,7 +26,7 @@ public class IOFile {
 	public IOFile(String filename) throws FileNotFoundException {
 		raf = new RandomAccessFile(filename, "r");
 		fc = raf.getChannel();
-		 block = ByteBuffer.allocate(BLOCK_SIZE);
+		block = ByteBuffer.allocate(BLOCK_SIZE);
 	}
 
 	public ByteBuffer readSequentialBlock() throws IOException {
@@ -40,11 +39,7 @@ public class IOFile {
 
 	public ByteBuffer readRandomBlock(long position) throws IOException {
 		fc.position(position);
-		block.clear();
-		fc.read(block);
-		block.flip();
-		++reads;
-		return block;
+		return readSequentialBlock();
 	}
 
 	/**
@@ -57,7 +52,7 @@ public class IOFile {
 	public int getWrites() {
 		return writes;
 	}
-	
+
 	public long length() throws IOException {
 		return fc.size();
 	}

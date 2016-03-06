@@ -16,16 +16,17 @@ import input_output.IOFile;
 public class LookupManager {
 	public static final String INDEX_PATH = "./resources/index/";
 	public static final String HITS_PATH = "./resources/output/hits.txt";
-	private int outputWrites = 0;
 
-	FileOutputStream fos;
-	FileChannel fc;
-	ByteBuffer hitsBuffer;
+	private int outputWrites;
+	private FileOutputStream fos;
+	private FileChannel fc;
+	private ByteBuffer hitsBuffer;
 
 	public void openOutput() throws FileNotFoundException {
 		fos = new FileOutputStream(HITS_PATH);
 		fc = fos.getChannel();
 		hitsBuffer = ByteBuffer.allocate(IOFile.BLOCK_SIZE);
+		outputWrites = 0;
 	}
 
 	public void lookupHits(Short age) throws IOException {
@@ -71,7 +72,6 @@ public class LookupManager {
 					dataBlock.get(record);
 
 					hitsBuffer.put(record);
-
 					if (hitsBuffer.capacity() - hitsBuffer.position() < 100 || !indexBlock.hasRemaining()) {
 						hitsBuffer.flip();
 						while (hitsBuffer.hasRemaining()) {
