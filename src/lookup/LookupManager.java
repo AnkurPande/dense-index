@@ -60,8 +60,6 @@ public class LookupManager {
 			int indexOffset = 0;
 			ByteBuffer indexBlock;
 			ByteBuffer dataBlock = null;
-			ByteBuffer indexEntry;
-			byte[] indexBytes = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
 			byte[] record = new byte[100];
 			long currentBlockStart;
 			int blockOffset;
@@ -123,7 +121,7 @@ public class LookupManager {
 			relationReads = relationFile.getReads();
 		} catch (FileNotFoundException e) {
 		} finally {
-			System.out.println("Number of hits:       " + bucketSize / 5);
+			System.out.println("Number of hits:       " + bucketSize / 4);
 			System.out.println("Index block reads:    " + indexReads);
 			System.out.println("Relation block reads: " + relationReads);
 			System.out.println("Output block writes:  " + outputWrites);
