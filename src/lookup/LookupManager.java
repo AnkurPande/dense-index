@@ -56,7 +56,8 @@ public class LookupManager {
 			IOFile relationFile = new IOFile(IndexCreator.FILE_NAME);
 
 			bucketSize = bucketFile.length();
-
+			System.out.println("Number of hits:       " + bucketSize / 4);
+			
 			int indexOffset = 0;
 			ByteBuffer indexBlock;
 			ByteBuffer dataBlock = null;
@@ -121,7 +122,7 @@ public class LookupManager {
 			relationReads = relationFile.getReads();
 		} catch (FileNotFoundException e) {
 		} finally {
-			System.out.println("Number of hits:       " + bucketSize / 4);
+			
 			System.out.println("Index block reads:    " + indexReads);
 			System.out.println("Relation block reads: " + relationReads);
 			System.out.println("Output block writes:  " + outputWrites);
