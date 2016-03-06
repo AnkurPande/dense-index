@@ -76,18 +76,8 @@ public class LookupManager {
 				currentBlockStart = 0;
 				blockOffset = 0;
 				while (indexBlock.hasRemaining()) {
-					int remaining = indexBlock.remaining();
-					if (remaining >= 5) {
-						indexBlock.get(indexBytes, 3, 5);
-					} else {
-						indexBlock.get(indexBytes, 3, remaining);
-						indexBlock = bucketFile.readSequentialBlock();
-						indexBlock.get(indexBytes, 3 + remaining, 5 - remaining);
-					}
-
-					indexEntry = ByteBuffer.wrap(indexBytes);
-					offset = indexEntry.getLong();
-
+					offset = indexBlock.getInt();
+					
 					byteOffset = offset * 100;
 
 					// System.out.println("Index block position: " +
