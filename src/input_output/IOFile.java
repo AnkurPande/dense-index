@@ -16,8 +16,8 @@ public class IOFile {
 	public static final int RECORD_SIZE = 100;
 	public static final int AGE_OFFSET = 39;
 
-	private static int reads = 0;
-	private static int writes = 0;
+	private int reads = 0;
+	private int writes = 0;
 
 	// FileInputStream fInStream;
 	RandomAccessFile raf;
