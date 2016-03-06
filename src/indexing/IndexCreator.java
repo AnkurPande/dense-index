@@ -13,7 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class CreateIndex {
+public class IndexCreator {
 	
 	// Constants for relation
 	static final int BLOCK_SIZE = IOFile.BLOCK_SIZE;
@@ -27,7 +27,7 @@ public class CreateIndex {
 	IOFile f;
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		CreateIndex c = new CreateIndex();
+		IndexCreator c = new IndexCreator();
 		Performance perf = new Performance();
 			
 		perf.startTimer();
@@ -40,7 +40,7 @@ public class CreateIndex {
 		System.out.println("Memory Taken (in MB): " + (double) perf.getUsedMemory() /(1024*1024) + " MB");
 	}
 	
-	public CreateIndex() throws FileNotFoundException{
+	public IndexCreator() throws FileNotFoundException{
 		f = new IOFile(FILE_NAME);
 		writer = new IndexWriter();
 	}

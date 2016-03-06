@@ -7,7 +7,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import indexing.CreateIndex;
+import indexing.IndexCreator;
 import input_output.IOFile;
 
 /**
@@ -53,7 +53,7 @@ public class LookupManager {
 		long relationReads = 0;
 		try {
 			IOFile bucketFile = new IOFile(INDEX_PATH + bucketName);
-			IOFile relationFile = new IOFile(CreateIndex.FILE_NAME);
+			IOFile relationFile = new IOFile(IndexCreator.FILE_NAME);
 
 			bucketSize = bucketFile.length();
 
