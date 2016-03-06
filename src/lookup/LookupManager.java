@@ -7,6 +7,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+import indexing.CreateIndex;
 import input_output.IOFile;
 
 /**
@@ -15,7 +16,6 @@ import input_output.IOFile;
  */
 public class LookupManager {
 	public static final String INDEX_PATH = "./resources/index/";
-	public static final String RELATION_PATH = "./resources/relation/person.txt";
 	public static final String HITS_PATH = "./resources/output/hits.txt";
 	private static int outputWrites = 0;
 
@@ -33,13 +33,12 @@ public class LookupManager {
 		hitsBuffer = ByteBuffer.allocate(IOFile.BLOCK_SIZE);
 	}
 
-	public static void main(String[] args) throws IOException {
-		// index.put((short) 18, new IndexEntry("18", 2));
-		(new LookupManager()).lookupHits((short) 18);
-	}
+	// public static void main(String[] args) throws IOException {
+	// // index.put((short) 18, new IndexEntry("18", 2));
+	// (new LookupManager()).lookupHits((short) 18);
+	// }
 
 	public void lookupHits(Short age) throws IOException {
-		openOutput();
 
 		// IndexEntry entry = index.get(age);
 		//
@@ -54,7 +53,7 @@ public class LookupManager {
 		long relationReads = 0;
 		try {
 			IOFile bucketFile = new IOFile(INDEX_PATH + bucketName);
-			IOFile relationFile = new IOFile(RELATION_PATH);
+			IOFile relationFile = new IOFile(CreateIndex.FILE_NAME);
 
 			bucketSize = bucketFile.length();
 
@@ -112,6 +111,7 @@ public class LookupManager {
 					// System.out.println("Data block position: " +
 					// dataBlock.position());
 
+					openOutput();
 					hitsBuffer.put(record);
 
 					if (hitsBuffer.capacity() - hitsBuffer.position() < 100 || !indexBlock.hasRemaining()) {
