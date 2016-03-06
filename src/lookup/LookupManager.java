@@ -73,6 +73,7 @@ public class LookupManager {
 
 				currentBlockStart = 0;
 				blockOffset = 0;
+				openOutput();
 				while (indexBlock.hasRemaining()) {
 					offset = indexBlock.getInt();
 					
@@ -99,7 +100,6 @@ public class LookupManager {
 					// System.out.println("Data block position: " +
 					// dataBlock.position());
 
-					openOutput();
 					hitsBuffer.put(record);
 
 					if (hitsBuffer.capacity() - hitsBuffer.position() < 100 || !indexBlock.hasRemaining()) {
