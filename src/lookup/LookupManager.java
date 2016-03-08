@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 
 import indexing.IndexCreator;
 import input_output.IOFile;
@@ -36,12 +37,15 @@ public class LookupManager {
 
 		long indexReads = 0;
 		long relationReads = 0;
+		long hitCount = 0;
+		long salarySum = 0;
 		try {
 			IOFile bucketFile = new IOFile(INDEX_PATH + bucketName);
 			IOFile relationFile = new IOFile(IndexCreator.FILE_NAME);
 
 			long bucketSize = bucketFile.length();
-			System.out.println("Number of hits:       " + bucketSize / 4);
+			hitCount = bucketSize / 4;
+			System.out.println("Number of hits:       " + hitCount);
 
 			int indexOffset = 0;
 			ByteBuffer indexBlock;
@@ -51,6 +55,8 @@ public class LookupManager {
 			int blockOffset;
 			long offset;
 			long byteOffset;
+			byte[] salaryBytes;
+			long salary;
 			while (indexOffset < bucketSize) {
 				indexBlock = bucketFile.readSequentialBlock();
 				indexOffset += IOFile.BLOCK_SIZE;
@@ -71,6 +77,10 @@ public class LookupManager {
 					dataBlock.position(blockOffset);
 					dataBlock.get(record);
 
+					salaryBytes = Arrays.copyOfRange(record, 42, 52);
+					salary = Long.parseUnsignedLong(new String(salaryBytes));
+					salarySum += salary;
+
 					hitsBuffer.put(record);
 					if (hitsBuffer.capacity() - hitsBuffer.position() < 100 || !indexBlock.hasRemaining()) {
 						hitsBuffer.flip();
@@ -87,7 +97,10 @@ public class LookupManager {
 			relationReads = relationFile.getReads();
 		} catch (FileNotFoundException e) {
 			// Index bucket file doesn't exist. Do nothing
+			System.out.println("Number of hits:       " + 0);
 		} finally {
+			System.out.println("Average salary:       " + salarySum / hitCount);
+			System.out.println("\nDisk IO statistics");
 			System.out.println("Index block reads:    " + indexReads);
 			System.out.println("Relation block reads: " + relationReads);
 			System.out.println("Output block writes:  " + outputWrites);
