@@ -18,7 +18,7 @@ public class BufferedIndexFileWriter {
 	/** The size of a hard disk block. Measured in bytes. */
 	private static final short BLOCK_SIZE = 4096;
 	/** The size of an index entry. Measured in bytes. */
-	private static final short ENTRY_SIZE = 5;
+	private static final short ENTRY_SIZE = 4;
 	/** The number of full entries that fit inside one block. */
 	private static final short threshold = BLOCK_SIZE / ENTRY_SIZE;
 	
