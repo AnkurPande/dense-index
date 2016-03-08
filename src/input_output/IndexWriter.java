@@ -11,9 +11,9 @@ import java.io.IOException;
 public class IndexWriter {
 	
 	/** Represents the number of index files to create */
-	private static final int BUCKETS = 81;
+	public static final int BUCKETS = 81;
 	/** Represents the starting number for the index file names */
-	private static final int min = 18;
+	public static final int MIN_AGE = 18;
 	
 	/**
 	 * Structure for holding BufferedIndexFileWriters.
@@ -29,7 +29,7 @@ public class IndexWriter {
 		// Initialize file writers
 		writers = new BufferedIndexFileWriter[BUCKETS + 1];
 		for (int i = 0; i < writers.length; ++i) {
-			writers[i] = new BufferedIndexFileWriter("./resources/index/" + Integer.toString(i + min));
+			writers[i] = new BufferedIndexFileWriter("./resources/index/" + Integer.toString(i + MIN_AGE));
 		}
 	}
 	
@@ -37,7 +37,7 @@ public class IndexWriter {
 	 * Look for specific bucket
 	 */
 	private BufferedIndexFileWriter lookup(short age) {
-		return writers[age-min];
+		return writers[age-MIN_AGE];
 	}
 	
 	public void addEntry(short age, int offset) {

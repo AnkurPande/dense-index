@@ -8,6 +8,7 @@ package indexing;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import input_output.IOFile;
 import input_output.IndexWriter;
@@ -22,9 +23,13 @@ public class IndexCreator {
 
 	// static String path = "C:\\Users\\Ankurp\\DENSE-INDEX\\";
 	static String path = "./resources/relation/";
-	public static final String FILE_NAME = path + "person_fnl.txt";
+	public static final String FILE_NAME = path + "person.txt";
 	IndexWriter writer;
 	IOFile f;
+	
+	// Member variables for average salary/age group
+	long[] totals = new long[IndexWriter.BUCKETS];
+	long[] hits = new long[IndexWriter.BUCKETS];
 
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		IndexCreator c = new IndexCreator();
@@ -53,6 +58,7 @@ public class IndexCreator {
 		int runs = (int) Math.ceil((double) recordsInRelation / recordsPerBlock);
 
 		byte[] ageBytes = new byte[2];
+		byte[] salBytes = new byte[10];
 		ByteBuffer block = ByteBuffer.allocate(BLOCK_SIZE + RECORD_SIZE);
 
 		int recordOffset = 0;
@@ -63,12 +69,19 @@ public class IndexCreator {
 				block.position(block.position() + AGE_OFFSET);
 				// Read a tuple from block.
 				block.get(ageBytes, 0, 2);
+				block.get(salBytes, 0, 10);
 
 				// Converting values of age attributes and block sequence into 5
 				// bytes offset.
 				short ageVal = Short.parseShort(new String(ageBytes));
-
+				long salVal = Long.parseLong(new String(salBytes));
+				
+				// Track income
+				++hits[ageVal - IndexWriter.MIN_AGE];
+				totals[ageVal - IndexWriter.MIN_AGE] += salVal;
+				
 				// Add entry to index file.
+				
 				writer.addEntry(ageVal, recordOffset);
 				++recordOffset;
 				block.position((block.position() / RECORD_SIZE) * RECORD_SIZE + RECORD_SIZE);
@@ -78,6 +91,10 @@ public class IndexCreator {
 		}
 
 		writer.close();
+		for (int i = 0; i < IndexWriter.BUCKETS; ++i) {
+			System.out.printf("Average salary for %d: %.2f%n", (IndexWriter.MIN_AGE + i),
+					(double)totals[i] / hits[i]);
+		}
 		System.out.println("Number of I/Os (creating index): " + f.getReads() + " reads, " + writer.getWrites() + " writes");
 	}
 }
