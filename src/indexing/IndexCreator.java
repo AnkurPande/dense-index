@@ -21,7 +21,7 @@ public class IndexCreator {
 	static final int AGE_OFFSET = IOFile.AGE_OFFSET;
 
 	static String path = "./resources/relation/";
-	public static final String FILE_NAME = path + "person_1.txt";
+	public static final String FILE_NAME = path + "person_fnl.txt";
 	IndexWriter writer;
 	IOFile f;
 
