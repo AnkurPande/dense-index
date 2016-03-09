@@ -22,7 +22,7 @@ public class IndexCreator {
 
 	// static String path = "C:\\Users\\Ankurp\\DENSE-INDEX\\";
 	static String path = "./resources/relation/";
-	public static final String FILE_NAME = path + "person.txt";
+	public static final String FILE_NAME = path + "person_fnl.txt";
 	IndexWriter writer;
 	IOFile f;
 	

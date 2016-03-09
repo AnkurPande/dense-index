@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import indexing.IndexCreator;
@@ -39,6 +40,26 @@ public class LookupManager {
 		long relationReads = 0;
 		long hitCount = 0;
 		long salarySum = 0;
+		byte[] salaryBytes;
+//		String salaryString;
+		long salary;
+		
+		int indexOffset = 0;
+		ByteBuffer indexBlock = null;
+		ByteBuffer dataBlock = null;
+		
+		ArrayList<Integer> recordOffsets = new ArrayList<Integer>();
+		int blockNumber = 0;
+		long recordBlock = 0;
+		int recordOffset = 0;
+		long recordByteOffset = 0;
+		
+		long currentDataBlockStart = 0;
+		int dataBlockOffset = 0;
+		
+		byte[] record = new byte[IOFile.RECORD_SIZE];
+//		String recordString;
+		
 		try {
 			IOFile bucketFile = new IOFile(INDEX_PATH + bucketName);
 			IOFile relationFile = new IOFile(IndexCreator.FILE_NAME);
@@ -46,52 +67,75 @@ public class LookupManager {
 			long bucketSize = bucketFile.length();
 			hitCount = bucketSize / 4;
 			System.out.println("Number of hits:       " + hitCount);
-
-			int indexOffset = 0;
-			ByteBuffer indexBlock;
-			ByteBuffer dataBlock = null;
-			byte[] record = new byte[100];
-			long currentBlockStart;
-			int blockOffset;
-			long offset;
-			long byteOffset;
-			byte[] salaryBytes;
-			long salary;
+			
+			// Read entire index block sequentially
 			while (indexOffset < bucketSize) {
 				indexBlock = bucketFile.readSequentialBlock();
 				indexOffset += IOFile.BLOCK_SIZE;
-
-				currentBlockStart = 0;
-				blockOffset = 0;
+				
 				while (indexBlock.hasRemaining()) {
-					offset = indexBlock.getInt();
-					byteOffset = offset * 100;
-					blockOffset = (int) (byteOffset - currentBlockStart);
-
-					if (currentBlockStart == 0 || blockOffset >= (IOFile.BLOCK_SIZE / IOFile.RECORD_SIZE) * IOFile.RECORD_SIZE) {
-						dataBlock = relationFile.readRandomBlock(byteOffset);
-						currentBlockStart = byteOffset;
-						blockOffset = 0;
-					}
-
-					dataBlock.position(blockOffset);
-					dataBlock.get(record);
-
-					salaryBytes = Arrays.copyOfRange(record, 42, 52);
-					salary = Long.parseUnsignedLong(new String(salaryBytes));
-					salarySum += salary;
-
-					hitsBuffer.put(record);
-					if (hitsBuffer.capacity() - hitsBuffer.position() < 100 || !indexBlock.hasRemaining()) {
-						hitsBuffer.flip();
-						while (hitsBuffer.hasRemaining()) {
-							fc.write(hitsBuffer);
-						}
-						outputWrites++;
-						hitsBuffer.clear();
-					}
+					recordOffsets.add(indexBlock.getInt());
 				}
 			}
+			
+			// Read relation file blocks in order
+			for (int i = 0; i < recordOffsets.size(); ++i) {
+				recordOffset = recordOffsets.get(i);
+				recordByteOffset = (long)recordOffset * IOFile.RECORD_SIZE;
+				recordBlock = recordByteOffset / IOFile.BLOCK_SIZE;
+				
+				// Read data file block
+				if (currentDataBlockStart == 0 || recordByteOffset >= currentDataBlockStart + IOFile.BLOCK_SIZE) {
+					dataBlock = relationFile.readRandomBlock(recordBlock * IOFile.BLOCK_SIZE);
+					currentDataBlockStart = (recordByteOffset / IOFile.BLOCK_SIZE) * IOFile.BLOCK_SIZE;
+				}
+				
+				// Process records within data file block
+				dataBlock.position((int) (recordByteOffset - currentDataBlockStart));
+				if (dataBlock.remaining() < IOFile.RECORD_SIZE) {
+					int rem = dataBlock.remaining();
+					// Read first half of record
+					dataBlock.get(record, 0, rem);
+					// Read next block
+					dataBlock = relationFile.readSequentialBlock();
+					// Read second half of record
+					dataBlock.get(record, rem, IOFile.RECORD_SIZE - rem);
+				} else {
+					dataBlock.get(record);
+				}
+				
+//				recordString = new String(record);
+				salaryBytes = Arrays.copyOfRange(record, 41, 51);
+//				salaryString = new String(salaryBytes);
+				salary = Long.parseUnsignedLong(new String(salaryBytes));
+				salarySum += salary;
+				
+				// Add matching record to hitsBuffer
+				if (hitsBuffer.remaining() < IOFile.RECORD_SIZE) {
+					// Fill up the rest of hitsbuffer
+					int rem = hitsBuffer.remaining();
+					hitsBuffer.put(record, 0, rem);
+					// Write hitsbuffer
+					hitsBuffer.flip();
+					while (hitsBuffer.hasRemaining()) {
+						fc.write(hitsBuffer);
+					}
+					outputWrites++;
+					hitsBuffer.clear();
+					// Add the rest of the record to hitsbuffer
+					hitsBuffer.put(record, rem, record.length - rem);
+				} else {
+					hitsBuffer.put(record);
+				}
+			}
+			// Flush hitsBuffer to file.
+			hitsBuffer.flip();
+			while (hitsBuffer.hasRemaining()) {
+				fc.write(hitsBuffer);
+			}
+			outputWrites++;
+			hitsBuffer.clear();
+			// Close file channels
 			closeOutput();
 			indexReads = bucketFile.getReads();
 			relationReads = relationFile.getReads();
