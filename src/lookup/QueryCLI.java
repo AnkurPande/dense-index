@@ -38,28 +38,30 @@ public class QueryCLI {
 				System.out.println("Invalid input. Please enter a number from 18-99");
 				continue;
 			}
+
+			lookup_performance.startTimer();
+
 			// Perform index lookup for age input
 			try {
-				// Start analyzing for indexing.
-				lookup_performance.startTimer();
-				// Lookup
 				lm.lookupHits(age);
-				// Stop analyzing for indexing.
-				lookup_performance.stopTimer();
-				// Calculate memory used.
-				lookup_performance.calculateMemUsed();
 
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.out.println("Unable to perform lookup. Exiting.");
 				System.exit(1);
-			}
-			// TODO: Print hits.txt to console.
 
-			System.out.println("\nPerformance data for lookup operation of age value " + age);
-			System.out.println("Time Taken :          " + (double) lookup_performance.getTimeElapsed() / 1000 + " s");
-			System.out.println("Memory Taken (in MB): " + (double) lookup_performance.getUsedMemory() / (1024 * 1024) + " MB");
+			} finally {
+				// Stop analyzing for indexing.
+				lookup_performance.stopTimer();
+				// Calculate memory used.
+				lookup_performance.calculateMemUsed();
+
+				System.out.println("\nPerformance data for lookup operation of age value " + age);
+				System.out.println("Time Taken :          " + (double) lookup_performance.getTimeElapsed() / 1000 + " s");
+				System.out.println("Memory Taken (in MB): " + (double) lookup_performance.getUsedMemory() / (1024 * 1024) + " MB");
+			}
 		}
+
 		System.out.println("Received quit signal. Exiting.");
 		kb.close();
 	}
