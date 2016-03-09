@@ -41,7 +41,6 @@ public class LookupManager {
 		long hitCount = 0;
 		long salarySum = 0;
 		byte[] salaryBytes;
-//		String salaryString;
 		long salary;
 		
 		int indexOffset = 0;
@@ -49,16 +48,13 @@ public class LookupManager {
 		ByteBuffer dataBlock = null;
 		
 		ArrayList<Integer> recordOffsets = new ArrayList<Integer>();
-		int blockNumber = 0;
 		long recordBlock = 0;
-		int recordOffset = 0;
 		long recordByteOffset = 0;
+		int position = 0;
 		
 		long currentDataBlockStart = 0;
-		int dataBlockOffset = 0;
 		
 		byte[] record = new byte[IOFile.RECORD_SIZE];
-//		String recordString;
 		
 		try {
 			IOFile bucketFile = new IOFile(INDEX_PATH + bucketName);
@@ -73,6 +69,7 @@ public class LookupManager {
 				indexBlock = bucketFile.readSequentialBlock();
 				indexOffset += IOFile.BLOCK_SIZE;
 				
+				// Add record offset to list
 				while (indexBlock.hasRemaining()) {
 					recordOffsets.add(indexBlock.getInt());
 				}
@@ -80,18 +77,20 @@ public class LookupManager {
 			
 			// Read relation file blocks in order
 			for (int i = 0; i < recordOffsets.size(); ++i) {
-				recordOffset = recordOffsets.get(i);
-				recordByteOffset = (long)recordOffset * IOFile.RECORD_SIZE;
+				// Calculate position of record in data file
+				recordByteOffset = (long)recordOffsets.get(i) * IOFile.RECORD_SIZE;
 				recordBlock = recordByteOffset / IOFile.BLOCK_SIZE;
 				
-				// Read data file block
+				// Read data file block (if necessary)
 				if (currentDataBlockStart == 0 || recordByteOffset >= currentDataBlockStart + IOFile.BLOCK_SIZE) {
 					dataBlock = relationFile.readRandomBlock(recordBlock * IOFile.BLOCK_SIZE);
 					currentDataBlockStart = (recordByteOffset / IOFile.BLOCK_SIZE) * IOFile.BLOCK_SIZE;
 				}
 				
+				position = (int) (recordByteOffset - currentDataBlockStart);
+				
 				// Process records within data file block
-				dataBlock.position((int) (recordByteOffset - currentDataBlockStart));
+				dataBlock.position(position);
 				if (dataBlock.remaining() < IOFile.RECORD_SIZE) {
 					int rem = dataBlock.remaining();
 					// Read first half of record
@@ -104,9 +103,7 @@ public class LookupManager {
 					dataBlock.get(record);
 				}
 				
-//				recordString = new String(record);
 				salaryBytes = Arrays.copyOfRange(record, 41, 51);
-//				salaryString = new String(salaryBytes);
 				salary = Long.parseUnsignedLong(new String(salaryBytes));
 				salarySum += salary;
 				
@@ -123,7 +120,7 @@ public class LookupManager {
 					outputWrites++;
 					hitsBuffer.clear();
 					// Add the rest of the record to hitsbuffer
-					hitsBuffer.put(record, rem, record.length - rem);
+					hitsBuffer.put(record, rem, IOFile.RECORD_SIZE - rem);
 				} else {
 					hitsBuffer.put(record);
 				}
