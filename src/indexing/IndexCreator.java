@@ -25,7 +25,7 @@ public class IndexCreator {
 	public static final String FILE_NAME = path + "person_fnl.txt";
 	IndexWriter writer;
 	IOFile f;
-	
+
 	// Member variables for average salary/age group
 	long[] totals = new long[IndexWriter.BUCKETS];
 	long[] hits = new long[IndexWriter.BUCKETS];
@@ -75,13 +75,13 @@ public class IndexCreator {
 				// bytes offset.
 				short ageVal = Short.parseShort(new String(ageBytes));
 				long salVal = Long.parseLong(new String(salBytes));
-				
+
 				// Track income
 				++hits[ageVal - IndexWriter.MIN_AGE];
 				totals[ageVal - IndexWriter.MIN_AGE] += salVal;
-				
+
 				// Add entry to index file.
-				
+
 				writer.addEntry(ageVal, recordOffset);
 				++recordOffset;
 				block.position((block.position() / RECORD_SIZE) * RECORD_SIZE + RECORD_SIZE);
@@ -92,9 +92,10 @@ public class IndexCreator {
 
 		writer.close();
 		for (int i = 0; i < IndexWriter.BUCKETS; ++i) {
-			System.out.printf("Average salary for %d: %.2f%n", (IndexWriter.MIN_AGE + i),
-					(double)totals[i] / hits[i]);
+			System.out.printf("Average salary for %d: %.2f%n", (IndexWriter.MIN_AGE + i), (double) totals[i] / hits[i]);
 		}
-		System.out.println("Number of I/Os (creating index): " + f.getReads() + " reads, " + writer.getWrites() + " writes");
+		System.out.println("Number of I/Os (creating index)");
+		System.out.println("Relation block reads: " + f.getReads());
+		System.out.println("Index block writes:   " + writer.getWrites());
 	}
 }
