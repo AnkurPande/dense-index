@@ -22,7 +22,7 @@ public class IndexCreator {
 
 	// static String path = "C:\\Users\\Ankurp\\DENSE-INDEX\\";
 	static String path = "./resources/relation/";
-	public static final String FILE_NAME = path + "person_fnl.txt";
+	public static final String FILE_NAME = path + "person.txt";
 	IndexWriter writer;
 	IOFile f;
 	
@@ -92,8 +92,8 @@ public class IndexCreator {
 
 		writer.close();
 		for (int i = 0; i < IndexWriter.BUCKETS; ++i) {
-			System.out.printf("Average salary for %d: %.2f%n", (IndexWriter.MIN_AGE + i),
-					(double)totals[i] / hits[i]);
+			System.out.printf("Average salary for %d: %d%n", (IndexWriter.MIN_AGE + i),
+					totals[i] / hits[i]);
 		}
 		System.out.println("Number of I/Os (creating index): " + f.getReads() + " reads, " + writer.getWrites() + " writes");
 	}

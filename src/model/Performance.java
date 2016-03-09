@@ -47,7 +47,7 @@ public class Performance {
 
 	public void calculateMemUsed() {
 		//return the memory used.
-		Runtime.getRuntime().gc();
 		this.usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		Runtime.getRuntime().gc();
 	}
 }
