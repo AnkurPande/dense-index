@@ -53,12 +53,9 @@ public class QueryCLI {
 			} finally {
 				// Stop analyzing for indexing.
 				lookup_performance.stopTimer();
-				// Calculate memory used.
-				lookup_performance.calculateMemUsed();
-
 				System.out.println("\nPerformance data for lookup operation of age value " + age);
 				System.out.println("Time Taken :          " + (double) lookup_performance.getTimeElapsed() / 1000 + " s");
-				System.out.println("Memory Taken (in MB): " + (double) lookup_performance.getUsedMemory() / (1024 * 1024) + " MB");
+	
 			}
 		}
 

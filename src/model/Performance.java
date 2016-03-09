@@ -1,9 +1,30 @@
+/**
+ * @author Ankurp
+ * 
+ * */
+
 package model;
 
 public class Performance {
 	
 	long startTime, endTime;
-	long usedMemory;
+	
+	public void startTimer(){
+		//start time
+		this.startTime = System.currentTimeMillis();
+	}
+	
+	public void stopTimer(){
+		//end time
+		this.endTime = System.currentTimeMillis();
+	}
+		
+	public long getTimeElapsed() {
+		//Return the elapsed time.
+		return endTime -startTime;
+	}
+	
+	/*Getter and setters*/
 	
 	public long getStartTime() {
 		return startTime;
@@ -21,33 +42,4 @@ public class Performance {
 		this.endTime = endTime;
 	}
 
-	public void setUsedMemory(long usedMemory) {
-		this.usedMemory = usedMemory;
-	}
-
-	public long getUsedMemory() {
-		return usedMemory;
-	}
-
-	public void startTimer(){
-		//start time
-		this.startTime = System.currentTimeMillis();
-	}
-	
-	public void stopTimer(){
-		//end time
-		this.endTime = System.currentTimeMillis();
-	}
-		
-	public long getTimeElapsed() {
-		//Return the elapsed time.
-		return endTime -startTime;
-	}
-	
-
-	public void calculateMemUsed() {
-		//return the memory used.
-		this.usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-		Runtime.getRuntime().gc();
-	}
 }

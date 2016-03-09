@@ -20,9 +20,8 @@ public class IndexCreator {
 	static final int RECORD_SIZE = IOFile.RECORD_SIZE;
 	static final int AGE_OFFSET = IOFile.AGE_OFFSET;
 
-	// static String path = "C:\\Users\\Ankurp\\DENSE-INDEX\\";
 	static String path = "./resources/relation/";
-	public static final String FILE_NAME = path + "person.txt";
+	public static final String FILE_NAME = path + "person_1.txt";
 	IndexWriter writer;
 	IOFile f;
 
@@ -33,15 +32,15 @@ public class IndexCreator {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		IndexCreator c = new IndexCreator();
 		Performance perf = new Performance();
-
+		
+		//Start timer.
 		perf.startTimer();
 		System.out.println("Index creation started");
 		c.createIndex();
+		//Stop timer.
 		perf.stopTimer();
-		perf.calculateMemUsed();
 		System.out.println("\nPerformance data for index creation.");
 		System.out.println("Time Taken :          " + (double) perf.getTimeElapsed() / 1000 + " s");
-		System.out.println("Memory Taken (in MB): " + (double) perf.getUsedMemory() / (1024 * 1024) + " MB");
 	}
 
 	public IndexCreator() throws FileNotFoundException {
