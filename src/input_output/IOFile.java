@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 public class IOFile {
-	public static final int BLOCK_SIZE = 4096;
+	public static final int BLOCK_SIZE = 1 << 16;
 	public static final int RECORD_SIZE = 100;
 	public static final int AGE_OFFSET = 39;
 

@@ -68,7 +68,7 @@ public class LookupManager {
 					byteOffset = offset * 100;
 					blockOffset = (int) (byteOffset - currentBlockStart);
 
-					if (currentBlockStart == 0 || blockOffset >= 4000) {
+					if (currentBlockStart == 0 || blockOffset >= (IOFile.BLOCK_SIZE / IOFile.RECORD_SIZE) * IOFile.RECORD_SIZE) {
 						dataBlock = relationFile.readRandomBlock(byteOffset);
 						currentBlockStart = byteOffset;
 						blockOffset = 0;

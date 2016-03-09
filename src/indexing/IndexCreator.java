@@ -8,7 +8,6 @@ package indexing;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import input_output.IOFile;
 import input_output.IndexWriter;
