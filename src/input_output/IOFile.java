@@ -26,7 +26,7 @@ public class IOFile {
 	public IOFile(String filename) throws FileNotFoundException {
 		raf = new RandomAccessFile(filename, "r");
 		fc = raf.getChannel();
-		block = ByteBuffer.allocate(BLOCK_SIZE);
+		block = ByteBuffer.allocateDirect(BLOCK_SIZE);
 	}
 
 	public ByteBuffer readSequentialBlock() throws IOException {

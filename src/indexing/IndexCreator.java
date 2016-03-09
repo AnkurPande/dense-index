@@ -35,6 +35,7 @@ public class IndexCreator {
 		Performance perf = new Performance();
 
 		perf.startTimer();
+		System.out.println("Index creation started");
 		c.createIndex();
 		perf.stopTimer();
 		perf.calculateMemUsed();
@@ -58,7 +59,7 @@ public class IndexCreator {
 
 		byte[] ageBytes = new byte[2];
 		byte[] salBytes = new byte[10];
-		ByteBuffer block = ByteBuffer.allocate(BLOCK_SIZE + RECORD_SIZE);
+		ByteBuffer block = ByteBuffer.allocateDirect(BLOCK_SIZE + RECORD_SIZE);
 
 		int recordOffset = 0;
 		for (int i = 0; i <= runs; i++) {

@@ -27,7 +27,7 @@ public class LookupManager {
 	public void openOutput() throws FileNotFoundException {
 		fos = new FileOutputStream(HITS_PATH);
 		fc = fos.getChannel();
-		hitsBuffer = ByteBuffer.allocate(IOFile.BLOCK_SIZE);
+		hitsBuffer = ByteBuffer.allocateDirect(IOFile.BLOCK_SIZE);
 		outputWrites = 0;
 	}
 
