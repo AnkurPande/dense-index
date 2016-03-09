@@ -43,7 +43,7 @@ public class LookupManager {
 		byte[] salaryBytes;
 		long salary;
 		
-		int indexOffset = 0;
+		long indexOffset = 0;
 		ByteBuffer indexBlock = null;
 		ByteBuffer dataBlock = null;
 		
