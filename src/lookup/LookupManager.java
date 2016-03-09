@@ -47,7 +47,6 @@ public class LookupManager {
 		ByteBuffer indexBlock = null;
 		ByteBuffer dataBlock = null;
 		
-		ArrayList<Integer> recordOffsets = new ArrayList<Integer>();
 		long recordBlock = 0;
 		long recordByteOffset = 0;
 		int position = 0;
@@ -71,58 +70,52 @@ public class LookupManager {
 				
 				// Add record offset to list
 				while (indexBlock.hasRemaining()) {
-					recordOffsets.add(indexBlock.getInt());
-				}
-			}
-			
-			// Read relation file blocks in order
-			for (int i = 0; i < recordOffsets.size(); ++i) {
-				// Calculate position of record in data file
-				recordByteOffset = (long)recordOffsets.get(i) * IOFile.RECORD_SIZE;
-				recordBlock = recordByteOffset / IOFile.BLOCK_SIZE;
-				
-				// Read data file block (if necessary)
-				if (currentDataBlockStart == 0 || recordByteOffset >= currentDataBlockStart + IOFile.BLOCK_SIZE) {
-					dataBlock = relationFile.readRandomBlock(recordBlock * IOFile.BLOCK_SIZE);
-					currentDataBlockStart = (recordByteOffset / IOFile.BLOCK_SIZE) * IOFile.BLOCK_SIZE;
-				}
-				
-				position = (int) (recordByteOffset - currentDataBlockStart);
-				
-				// Process records within data file block
-				dataBlock.position(position);
-				if (dataBlock.remaining() < IOFile.RECORD_SIZE) {
-					int rem = dataBlock.remaining();
-					// Read first half of record
-					dataBlock.get(record, 0, rem);
-					// Read next block
-					dataBlock = relationFile.readSequentialBlock();
-					// Read second half of record
-					dataBlock.get(record, rem, IOFile.RECORD_SIZE - rem);
-				} else {
-					dataBlock.get(record);
-				}
-				
-				salaryBytes = Arrays.copyOfRange(record, 41, 51);
-				salary = Long.parseUnsignedLong(new String(salaryBytes));
-				salarySum += salary;
-				
-				// Add matching record to hitsBuffer
-				if (hitsBuffer.remaining() < IOFile.RECORD_SIZE) {
-					// Fill up the rest of hitsbuffer
-					int rem = hitsBuffer.remaining();
-					hitsBuffer.put(record, 0, rem);
-					// Write hitsbuffer
-					hitsBuffer.flip();
-					while (hitsBuffer.hasRemaining()) {
-						fc.write(hitsBuffer);
+					recordByteOffset = (long)indexBlock.getInt() * IOFile.RECORD_SIZE;
+					recordBlock = recordByteOffset / IOFile.BLOCK_SIZE;
+					
+					// Read data file block (if necessary)
+					if (currentDataBlockStart == 0 || recordByteOffset >= currentDataBlockStart + IOFile.BLOCK_SIZE) {
+						dataBlock = relationFile.readRandomBlock(recordBlock * IOFile.BLOCK_SIZE);
+						currentDataBlockStart = (recordByteOffset / IOFile.BLOCK_SIZE) * IOFile.BLOCK_SIZE;
 					}
-					outputWrites++;
-					hitsBuffer.clear();
-					// Add the rest of the record to hitsbuffer
-					hitsBuffer.put(record, rem, IOFile.RECORD_SIZE - rem);
-				} else {
-					hitsBuffer.put(record);
+					
+					position = (int) (recordByteOffset - currentDataBlockStart);
+					
+					// Process records within data file block
+					dataBlock.position(position);
+					if (dataBlock.remaining() < IOFile.RECORD_SIZE) {
+						int rem = dataBlock.remaining();
+						// Read first half of record
+						dataBlock.get(record, 0, rem);
+						// Read next block
+						dataBlock = relationFile.readSequentialBlock();
+						// Read second half of record
+						dataBlock.get(record, rem, IOFile.RECORD_SIZE - rem);
+					} else {
+						dataBlock.get(record);
+					}
+					
+					salaryBytes = Arrays.copyOfRange(record, 41, 51);
+					salary = Long.parseUnsignedLong(new String(salaryBytes));
+					salarySum += salary;
+					
+					// Add matching record to hitsBuffer
+					if (hitsBuffer.remaining() < IOFile.RECORD_SIZE) {
+						// Fill up the rest of hitsbuffer
+						int rem = hitsBuffer.remaining();
+						hitsBuffer.put(record, 0, rem);
+						// Write hitsbuffer
+						hitsBuffer.flip();
+						while (hitsBuffer.hasRemaining()) {
+							fc.write(hitsBuffer);
+						}
+						outputWrites++;
+						hitsBuffer.clear();
+						// Add the rest of the record to hitsbuffer
+						hitsBuffer.put(record, rem, IOFile.RECORD_SIZE - rem);
+					} else {
+						hitsBuffer.put(record);
+					}
 				}
 			}
 			// Flush hitsBuffer to file.
